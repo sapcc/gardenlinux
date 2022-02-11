@@ -723,59 +723,19 @@ def snapshot_date(gardenlinux_epoch: int = None):
     return date_str
 
 
-def _parse_version_from_workingtree(version_file_path: str=paths.version_path) -> str:
+def _parse_version_from_workingtree(version_cmd_path: str=paths.version_cmd_path) -> str:
     '''
-    parses the raw version as configured (defaulting to the contents of `VERSION` file)
-
-    In particular, the contents of `VERSION` (a regular text file) are parsed, with the following
-    semantics:
-
-    - lines are stripped
-    - after stripping, lines starting with `#` are ignored
-    - the first non-empty line (after stripping and comment-stripping) is considered
-    - extra lines are ignored
-    - from this line, trailing comments are removed (with another subsequent strip)
-    - the result is then expected to be one of:
-      - a semver-ish version (<major>.<minor>)
-      - the string literal `today`
-    - the afforementioned assumptions about the version are, however, not validated by this function
+    parses the version as defines by the bin/garden-version
     '''
-    with open(version_file_path) as f:
-        for line in f.readlines():
-            if not (line := line.strip()) or line.startswith('#'): continue
-            version_str = line
-            if '#' in version_str:
-                # ignore comments
-                version_str = version_str.split('#', 1)[0].strip()
-            return version_str
-        else:
-            raise ValueError(f'did not find uncommented, non-empty line in {version_file_path}')
+    result = subprocess.check_output([version_cmd_path], check=True, capture_output=True)
+    return result.stdout.strip()
 
 
-def next_release_version_from_workingtree(
-    epoch: str=gardenlinux_epoch(),
-    version_file_path: str=paths.version_path
-):
-    version_str = _parse_version_from_workingtree(version_file_path=version_file_path)
-
-    if version_str == version_today or version_str == version_dev:
-        # the first release-candidate is always <gardenlinux-epoch>.0
-        return f'{gardenlinux_epoch_from_workingtree(epoch = epoch)}.0'
-
-    # if version is not `today`, we expect to period-separated integers (<epoch>.<patchlevel>)
-    epoch, patchlevel = version_str.split('.')
-
-    # ensure the components are both parsable to int
-    int(epoch)
-    int(patchlevel)
-
-    return version_str
+def next_release_version_from_workingtree():
+    return _parse_version_from_workingtree()
 
 
-def gardenlinux_epoch_from_workingtree(
-    version_file_path: str=paths.version_path,
-    epoch: str=gardenlinux_epoch()
-):
+def gardenlinux_epoch_from_workingtree():
     '''
     determines the configured gardenlinux epoch from the current working tree.
 
@@ -788,7 +748,7 @@ def gardenlinux_epoch_from_workingtree(
       - the string literal `today`
         - in this case, the returned epoch is today's gardenlinux epoch (days since 2020-04-01)
     '''
-    version_str = _parse_version_from_workingtree(version_file_path=version_file_path)
+    version_str = _parse_version_from_workingtree()
 
     # version_str may either be a semver-ish (gardenlinux only uses two components (x.y))
     try:
@@ -798,7 +758,7 @@ def gardenlinux_epoch_from_workingtree(
         pass
 
     if version_str == version_today or version_str == version_dev:
-        return epoch
+        return gardenlinux_epoch()
 
     raise ValueError(f'{version_str=} was not understood - either semver or "today" are supported')
 
