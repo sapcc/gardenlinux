@@ -10,6 +10,7 @@ source "$thisDir/.constants.sh" \
 	--flags 'deb-src' \
 	--flags 'gardenlinux-only' \
 	--flags 'local-pkgs:' \
+	--flags 'localcache' \
 	-- \
 	'[--deb-src] [--ports] [--gardenlinux-only] <target-dir> <suite> <version>' \
 	'rootfs stretch 520.0'
@@ -19,6 +20,7 @@ gardenlinuxOnly=
 ports=
 debSrc=
 local_pkgs=
+localcache=0
 while true; do
 	flag="$1"; shift
 	dgetopt-case "$flag"
@@ -27,6 +29,7 @@ while true; do
 		--ports) ports=1 ;;
 		--deb-src) debSrc=1 ;;
 		--local-pkgs) local_pkgs="$1"; shift ;;
+		--localcache) localcache=1 ;;
 		--) break ;;
 		*) eusage "unknown flag '$flag'" ;;
 	esac
@@ -48,6 +51,7 @@ else
 fi
 
 securityMirror='https://security.debian.org/debian-security'
+localCache='http://172.17.0.1/gardenlinux'
 
 comp='main'
 arch="$("$thisDir/.dpkg-arch.sh" "$targetDir")"
@@ -61,6 +65,7 @@ deb() {
 		standard) mirror="$standardMirror" ;;
 		security) mirror="$securityMirror" ;;
 		gardenlinux) mirror="$gardenlinuxMirror" ;;
+		localcache) mirror="$localCache" ;;
 		*) echo >&2 "error: unknown 'deb' line target: '$target'"; exit 1 ;;
 	esac
 
@@ -106,6 +111,11 @@ deb() {
 	fi
 } > "$targetDir/etc/apt/sources.list"
 chmod 0644 "$targetDir/etc/apt/sources.list"
+
+if [ "${localcache:-0}" = "1" ]; then
+	printf 'Package: *\nPin: origin 172.17.0.1\nPin-Priority: 550\n' > "$targetDir/etc/apt/preferences.d/cache"
+	deb "$version" main localcache > "$targetDir/etc/apt/sources.list.d/localcache.list"
+fi
 
 if [ -n "$local_pkgs" ]; then
 	printf 'Package: *\nPin: origin ""\nPin-Priority: 600\n' > "$targetDir/etc/apt/preferences.d/local_pkgs"

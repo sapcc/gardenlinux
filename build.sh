@@ -3,9 +3,9 @@ set -Eeuo pipefail
 
 thisDir="$(dirname "$(readlink -f "$BASH_SOURCE")")"
 source "$thisDir/bin/.constants.sh" \
-	--flags 'skip-build,debug,lessram,manual,skip-tests' \
+	--flags 'skip-build,debug,lessram,manual,skip-tests,localcache' \
 	--flags 'arch:,features:,disable-features:,disable-images:,suite:,local-pkgs:' \
-	--usage '[--skip-build] [--lessram] [--debug] [--manual] [--arch=<arch>] [--skip-tests] [<output-dir>] [<version/timestamp>]' \
+	--usage '[--skip-build] [--lessram] [--debug] [--manual] [--arch=<arch>] [--skip-tests] [--localcache] [<output-dir>] [<version/timestamp>]' \
 	--sample '--features kvm,khost --disable-features _slim .build' \
 	--sample '--features metal,_pxe --lessram .build' \
 	--help  "Generates a Garden Linux image based on features
@@ -24,6 +24,7 @@ source "$thisDir/bin/.constants.sh" \
 --suite		specifies the debian suite to build for e.g. bullseye, potatoe (default: testing)
 --skip-tests	deactivating tests (default: off)
 --skip-build	do not create the build container BUILD_IMAGE variable would specify an alternative name
+--localcache    use a local cache for the repository, start it with docker-compose up from the hack directory
 "
 
 eval "$dgetopt"
@@ -36,6 +37,7 @@ features=
 disablefeatures=
 disableimages=
 tests=1
+localcache=0
 local_pkgs=
 output=".build"
 while true; do
@@ -52,6 +54,7 @@ while true; do
 		--disable-images)	disableimages="$1"; shift ;;
 		--skip-tests)   tests=0	;;
 		--local-pkgs) local_pkgs="$1"; shift ;;
+		--localcache) localcache=1 ;;
 		--) break ;;
 		*) eusage "unknown flag '$flag'" ;;
 	esac
@@ -79,6 +82,7 @@ envArgs=(
 	tests=$tests
 	userID="$userID"
 	userGID="$userGID"
+	localcache=$localcache
 )
 
 securityArgs=(
