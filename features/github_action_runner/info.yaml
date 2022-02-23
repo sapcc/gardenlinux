@@ -1,0 +1,6 @@
+description: GitHub action self hosted runner
+type: platform
+features:
+  include:
+    - cloud
+    - server

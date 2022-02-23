@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -Eeufo pipefail
+
+# ensure kernel is in lockdown mode to prevent leaking registration token from memory
+[ -f /sys/kernel/security/lockdown ]
+
+# read config from virtio serial port (that way the registration token is readable only once, to prevent leaking it)
+while IFS='=' read -r key value; do
+	[ -n "$key" ] || break
+	declare "$key"="$value"
+done < /dev/virtio-ports/github_action_runner_in
+
+cd /opt/github_action_runner
+export RUNNER_ALLOW_RUNASROOT=1
+
+./config.sh --ephemeral --unattended --name "$(uuidgen)" --labels "gardenlinux-$(dpkg --print-architecture)" --url "$url" --token "$token"
+
+jq -r '.agentId' < .runner > /dev/virtio-ports/github_action_runner_out
+
+# exec is important here to replace the current process with run.sh instead of forking it as a child process
+# this ensures $token is no longer visible in any processes mapped virtual memory region
+# => anything short of getting direct read access to physical memory can no longer retrive registration token
+#    (reading physical memory, even as root, can be disabled by booting in lockdown mode with `lsm=lockdown`)
+exec ./run.sh

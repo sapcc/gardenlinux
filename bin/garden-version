@@ -31,7 +31,7 @@ while true; do
 	flag="$1"; shift
 	dgetopt-case "${flag}"
 	case "${flag}" in
-		--major|--minor|--date|--datefull|--epoch|--git)		
+		--major|--minor|--date|--datefull|--epoch|--git)
 			typeout="${flag}"   ;;
 		--)	break ;;
 		*) 	eusage "unknown flag '${flag}'" ;;
@@ -44,13 +44,14 @@ input=$(sed "s/^[[:space:]]*//;s/[[:space:]]*\$//" <<< ${input})
 [ -z ${input} ] && input="dev"
 
 minor=0
-if [[ ${input} =~ ^[0-9\.]*$ && $(cut -d. -f1 <<< ${input}) -lt 10000000 ]]; 
+if [[ ${input} =~ ^[0-9\.]*$ && $(cut -d. -f1 <<< ${input}) -lt 10000000 ]];
 then	[ $(cut -d. -sf3 <<< ${input}) ] && eusage "invalid version format ${input}. should be <major>[.<minor>]"
 
 	major="$(cut -d. -f1 <<< ${input})"
-	if [ $(cut -d. -sf2 <<< ${input}) ]; then 
+	if [ $(cut -d. -sf2 <<< ${input}) ]; then
 		minor="$(cut -d. -f2 <<< ${input})"
 	fi
+	version="${major}.${minor}"
 else	if	[[ ${input} = dev ]];
 	then	indate=$(date --date "today" +%s 2>/dev/null)
 		major="$(( (${indate} - $(date --date "${startdate}" +%s)) / (60*60*24) ))"
@@ -70,4 +71,3 @@ case "${typeout}" in
 	--git)		echo "${version}-$(git -C "${scriptsDir}" rev-parse --short 'HEAD^{commit}')" ;;
         *)		echo "${version}" ;;
 esac
-

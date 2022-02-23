@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -Eexufo pipefail
+
+rootfs="$1"
+targetBase="$2"
+
+kernel=$(find "$rootfs/boot/" -name 'vmlinuz*' -maxdepth 1)
+cp "$kernel" "$targetBase.vmlinuz"
+
+initrd="$targetBase.initrd"
+touch "$initrd"
+
+tar="$targetBase.tar.xz"
+
+[[ -d "$rootfs/proc" ]] && [[ -z "$(ls -A "$rootfs/proc")" ]]
+mount -t proc none "$rootfs/proc"
+
+initrd_mnt="$(chroot "$rootfs" mktemp)"
+mount --bind "$initrd" "$rootfs$initrd_mnt"
+
+tar_mnt="$(chroot "$rootfs" mktemp)"
+mount --bind "$tar" "$rootfs$tar_mnt"
+
+kernel_version="${kernel#*-}"
+
+chroot "$rootfs" dracut \
+	--force \
+	--kver "$kernel_version" \
+	--modules "bash dash systemd systemd-initrd kernel-modules kernel-modules-extra terminfo udev-rules fs-lib dracut-systemd tar-rootfs base" \
+	--include "$tar_mnt" "root.tar.xz" \
+	--reproducible \
+	--no-hostonly \
+	"$initrd_mnt"
+
+umount "$rootfs$initrd_mnt"
+rm "$rootfs$initrd_mnt"
+
+umount "$rootfs$tar_mnt"
+rm "$rootfs$tar_mnt"
+
+umount "$rootfs/proc"

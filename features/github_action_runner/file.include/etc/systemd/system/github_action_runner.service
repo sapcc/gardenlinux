@@ -1,0 +1,9 @@
+[Unit]
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/github_action_runner
+ExecStopPost=/sbin/halt -f -p
+
+[Install]
+WantedBy=multi-user.target

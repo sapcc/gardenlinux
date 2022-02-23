@@ -1,0 +1,8 @@
+[Unit]
+Before=initrd-root-fs.target
+DefaultDependencies=no
+
+[Mount]
+What=tmpfs
+Where=/sysroot
+Type=tmpfs
