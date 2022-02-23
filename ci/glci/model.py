@@ -679,6 +679,7 @@ epoch_date = datetime.datetime.fromisoformat('2020-04-01')
 
 # special version value - use "today" as gardenlinux epoch (depend on build-time)
 version_today = 'today'
+version_dev = 'dev'
 
 
 def gardenlinux_epoch(date: typing.Union[str, datetime.datetime] = None):
@@ -757,9 +758,12 @@ def next_release_version_from_workingtree(
 ):
     version_str = _parse_version_from_workingtree(version_file_path=version_file_path)
 
-    if version_str == version_today:
+    if version_str == version_today or version_str == version_dev:
         # the first release-candidate is always <gardenlinux-epoch>.0
-        return f'{gardenlinux_epoch_from_workingtree(epoch = epoch)}.0'
+        version = f'{gardenlinux_epoch_from_workingtree(epoch = epoch)}.0'
+        if version_str == version_dev:
+            return version, version_dev
+        return version, version
 
     # if version is not `today`, we expect to period-separated integers (<epoch>.<patchlevel>)
     epoch, patchlevel = version_str.split('.')
@@ -768,7 +772,7 @@ def next_release_version_from_workingtree(
     int(epoch)
     int(patchlevel)
 
-    return version_str
+    return version_str, version_str
 
 
 def gardenlinux_epoch_from_workingtree(
@@ -796,10 +800,10 @@ def gardenlinux_epoch_from_workingtree(
     except ValueError:
         pass
 
-    if version_str == version_today:
+    if version_str == version_today or version_str == version_dev:
         return epoch
 
-    raise ValueError(f'{version_str=} was not understood - either semver or "today" are supported')
+    raise ValueError(f'{version_str=} was not understood - either semver, "dev" or "today" are supported')
 
 
 def _enumerate_feature_files(features_dir=os.path.join(repo_root, 'features')):

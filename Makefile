@@ -148,7 +148,10 @@ metal-dev: container-build cert/sign.pub
 	./build.sh $(BUILD_OPTS) --skip-build --features server,metal,_dev $(BUILDDIR) $(VERSION)
 
 metalk: container-build cert/sign.pub
-	./build.sh $(BUILD_OPTS) --skip-build --features server,metal,chost,khost,_pxe $(BUILDDIR) $(VERSION)
+	./build.sh $(BUILD_OPTS) --skip-build --features metal,khost,_pxe $(BUILDDIR) $(VERSION)
+
+metalk-dev: container-build cert/sign.pub
+	./build.sh $(BUILD_OPTS) --skip-build --features metal,khost,_pxe,_dev $(BUILDDIR) $(VERSION)
 
 github_action_runner: container-build cert/sign.pub
 	./build.sh $(BUILD_OPTS) --skip-build --features github_action_runner $(BUILDDIR) $(VERSION)

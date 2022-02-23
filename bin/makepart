@@ -12,6 +12,7 @@ function uuid_hash {
 }
 
 rootfs="$1"
+arch="${2:-$arch}"
 timestamp=$(garden-version --epoch "$version")
 
 rootfs_work=$(mktemp -d)
@@ -88,7 +89,7 @@ sed 's/#.*//;/^[[:blank:]]*$/d' \
 			echo "overlay /etc overlay defaults,lowerdir=/etc,upperdir=/overlay/etc/upper,workdir=/overlay/etc/work,x-systemd.requires-mounts-for=/overlay 0 2" >> "$fstab"
 		fi
 		column -t "$fstab" > "$rootfs_work/etc/fstab"
-		column -t "$veritytab" > "$rootfs_work/etc/veritytab"
+		column -t "$veritytab" >> "$rootfs_work/etc/veritytab"
 	fi
 
 	case "$fs" in
@@ -117,8 +118,16 @@ sed 's/#.*//;/^[[:blank:]]*$/d' \
 			used_inodes=$(for (( inode=1; inode <= "$num_inodes"; inode++ )); do echo "testi <$inode>"; done | debugfs "$file" 2> /dev/null | grep -oP '(?<=Inode )[0-9]+(?= is marked in use)')
 			for inode in $used_inodes; do for field in {a,m,c}time; do echo "set_inode_field <$inode> $field $timestamp"; done; done | debugfs -w "$file" &> /dev/null
 
+			if [[ -d "$rootfs_work/boot/efi" ]]; then
+				chcon system_u:object_r:dosfs_t:s0 "$rootfs_work/boot/efi"
+			fi
+
 			rm -rf "$rootfs_work$target"
 			mkdir "$rootfs_work$target"
+
+			if [[ "$target" = "/overlay" ]]; then
+				chcon system_u:object_r:default_t:s0 "$rootfs_work/overlay"
+			fi
 			;;
 		"vfat")
 			uuid=${uuid:-$(echo "gardenlinux:$version:fs_uuid:$fs:$target" | sha256sum | cut -c -8)}
@@ -193,7 +202,6 @@ unified_image_signed="$(mktemp)"
 [[ ! -e "$rootfs$initrd" ]]
 touch "$rootfs$initrd"
 mount --bind "$initrd" "$rootfs$initrd"
-[[ ! -e "$rootfs/etc/veritytab" ]]
 touch "$rootfs/etc/veritytab"
 mount --bind "$veritytab" "$rootfs/etc/veritytab"
 [[ -d "$rootfs/proc" ]] && [[ -z "$(ls -A "$rootfs/proc")" ]]
@@ -205,7 +213,7 @@ kernel_version="${kernel_file#*-}"
 chroot "$rootfs" dracut \
 	--force \
 	--kver "$kernel_version" \
-	--modules "bash dash systemd systemd-initrd systemd-repart systemd-veritysetup kernel-modules kernel-modules-extra terminfo udev-rules dracut-systemd gardenlinux base fs-lib shutdown" \
+	--modules "bash dash systemd systemd-initrd systemd-repart systemd-veritysetup kernel-modules kernel-modules-extra terminfo udev-rules dracut-systemd base fs-lib shutdown" \
 	--install "/etc/veritytab" \
 	--reproducible \
 	"$initrd"
