@@ -28,7 +28,7 @@ done
 if [ -n "$config" ]; then
 	while IFS='=' read -r key value; do
 		declare "$key"="$value"
-	done < ("$config" | arch="$([ "$arch" = aarch64 ] && echo arm64 || echo amd64)" envsubst)
+	done < <(arch="$([ "$arch" = aarch64 ] && echo arm64 || echo amd64)" envsubst < "$config")
 fi
 
 build_prefix="$(realpath "$build_prefix")"
@@ -56,12 +56,16 @@ elif [ -n "$app_id" ]; then
 
 	app_rsa_key="$(realpath "$app_rsa_key")"
 
+	jwt="$("$jwt_path" "$app_id" < "$app_rsa_key")"
+	installation_id="$(curl -s -f -H "Authorization: Bearer $jwt" "https://api.github.com/app/installations" | jq -r '.[] | select(.account.login == "'"$repo_org"'") | .id')"
+	if [ -z "$installation_id" ]; then
+		echo "github app $app_id not installed for organization $repo_org" >&2
+		exit 1
+	fi
+
 	function get_token {
 		local jwt="$("$jwt_path" "$app_id" < "$app_rsa_key")"
-
-		local installation_id="$(curl -s -f -H "Authorization: Bearer $jwt" "https://api.github.com/app/installations" | jq -r '.[] | select(.account.login == "'"$repo_org"'") | .id')"
 		local api_token="$(curl -s -f -X POST -H "Authorization: Bearer $jwt" "https://api.github.com/app/installations/$installation_id/access_tokens" | jq -r '.token')"
-
 		echo "$api_token"
 	}
 else
