@@ -3,13 +3,14 @@
 set -eufo pipefail
 
 arch="$(uname -m)"
-jwt_path="$(realpath "$(dirname "$BASH_SOURCE")/jwt.sh")"
+jwt_path="$(realpath "$(dirname "$BASH_SOURCE")/jwt")"
 build_prefix=".build/github_action_runner-$([ "$arch" = aarch64 ] && echo arm64 || echo amd64)-dev-local"
 repo="gardenlinux/gardenlinux"
 api_token=
 app_id=
 app_rsa_key=
 num_runners=1
+config=
 
 while [ "$#" -gt 0 ]; do
 	flag="$1"; shift
@@ -20,8 +21,15 @@ while [ "$#" -gt 0 ]; do
 		-a|--app) app_id="$1"; shift ;;
 		-k|--key) app_rsa_key="$1"; shift ;;
 		-n|--num-runners) num_runners="$1"; shift ;;
+		-c|--config) config="$1"; shift ;;
 	esac
 done
+
+if [ -n "$config" ]; then
+	while IFS='=' read -r key value; do
+		declare "$key"="$value"
+	done < ("$config" | arch="$([ "$arch" = aarch64 ] && echo arm64 || echo amd64)" envsubst)
+fi
 
 build_prefix="$(realpath "$build_prefix")"
 

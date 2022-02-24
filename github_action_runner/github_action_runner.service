@@ -1,0 +1,6 @@
+[Service]
+ExecStart=/usr/local/bin/github_action_runner_launcher -c /etc/github_action_runner.conf
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target
