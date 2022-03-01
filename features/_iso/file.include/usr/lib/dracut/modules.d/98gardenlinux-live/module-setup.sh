@@ -9,6 +9,10 @@ depends() {
     echo "fs-lib dracut-systemd"
 }
 
+installkernel() {
+    instmods squashfs loop iso9660
+}
+
 install() {
     inst_multiple grep awk mawk file
    
