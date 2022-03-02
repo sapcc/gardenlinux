@@ -7,14 +7,15 @@ targetBase=$2
 targetBaseDir=$(dirname "$targetBase")
 
 kernel=$(echo ${rootfs}/boot/vmlinuz-* | tr " " '\n' | cut -d- -f 2- | sort -V | tail -1)
-garden-chroot "${rootfs}" dracut -f /tmp/unified ${kernel} --uefi --kernel-cmdline "console=tty0 console=ttyS0,115200 gl.ovl=/:tmpfs ip=dhcp gl.ram=1"  -m "bash dash systemd systemd-initrd kernel-modules kernel-modules-extra terminfo udev-rules dracut-systemd fs-lib shutdown gardenlinux-live" -o "gardenlinux" --reproducible
+garden-chroot "${rootfs}" dracut -f /tmp/unified ${kernel} --uefi --kernel-cmdline "console=tty0 console=ttyS0,115200 gl.ovl=/:tmpfs ip=dhcp gl.ram=1"  -m "bash dash systemd systemd-initrd kernel-modules kernel-modules-extra terminfo udev-rules dracut-systemd fs-lib shutdown gardenlinux-live" --reproducible
+garden-chroot "${rootfs}" dracut -f /tmp/initrd ${kernel} -m "bash dash systemd systemd-initrd kernel-modules kernel-modules-extra terminfo udev-rules dracut-systemd fs-lib shutdown gardenlinux-live" --reproducible
 
 mkdir /tmp/CD_root
 mkdir /tmp/CD_root/{isolinux,images,kernel,boot,boot/images,boot/syslinux}
 
 mksquashfs "$rootfs" "/tmp/CD_root/squashfs.img" -comp lzo
 cp "$rootfs/boot/"vmlinuz* "/tmp/CD_root/boot/images/vmlinuz"
-cp "$rootfs/boot/"initrd* "/tmp/CD_root/boot/images/initrd"
+mv "$rootfs/tmp/"initrd* "/tmp/CD_root/boot/images/initrd"
 
 #TODO: determine right size
 mv "${rootfs}/tmp/unified" bootx64.efi

@@ -14,9 +14,8 @@ installkernel() {
 }
 
 install() {
-    inst_multiple grep awk mawk file
+    inst_multiple grep awk mawk
    
-    inst_simple "$moddir/prepare-squashfs.service" ${systemdsystemunitdir}/prepare-squashfs.service
     inst_script "$moddir/prepare-squashfs.sh" /sbin/prepare-squashfs
     inst_script "$moddir/live-sysroot-generator.sh" $systemdutildir/system-generators/live-sysroot-generator
     inst_script "$moddir/squash-mount-generator.sh" $systemdutildir/system-generators/squash-mount-generator

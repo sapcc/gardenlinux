@@ -11,6 +11,8 @@ mkdir -p /run/rootfs
 cat >"${GENERATOR_DIR}/run-rootfs.mount" <<EOF
 [Unit]
 DefaultDependencies=no
+Before=sysroot.mount
+After=dracut-initqueue.service
 
 [Mount]
 What=/run/root.squashfs
