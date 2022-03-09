@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+thisDir="$(dirname "$(readlink -f "${BASH_SOURCE}")")"
+latestVersion="$(${thisDir}/../garden-version --major).$(${thisDir}/../garden-version --minor)"
+
+REPO_VERSION=${REPO_VERSION:-"dev"}
+
+source "${thisDir}/../.constants.sh" \
+	--flags 'release:' \
+	--help "TODO"
+
+eval "${dgetopt}"
+while true; do
+    flag="$1"; shift
+    dgetopt-case "${flag}"
+    case "${flag}" in
+        --release)
+	    REPO_VERSION="${1}"; shift ;;
+	--) break;;
+        *)
+	    eusage "unknown flag '${flag}'";;
+    esac
+done
+
+# $1: REPO_VERSION
+# $2: Output file name
+# $3: arch type (all, amd64, arm64)
+function get_package_file {
+    curl --silent -o ${2} "http://repo.gardenlinux.io/gardenlinux/dists/"${1}"/main/binary-"${3}"/Packages" || \
+	(echo "### Could not fetch Package file for ${1} from repo.gardenlinux.io" && exit 1)
+
+    grep -q "<Error><Code>NoSuchKey</Code>" ${2} && \
+	(echo "### Gardenlinux version ${1} does not exist on repo.gardenlinux.io" && exit 1)
+}
+
+# $1: Packages.orig file downloaded from repo
+# $2: Arch (all, amd64, arm64)
+function filter_info {
+
+    cat $1 | grep -E "^Package:|^Version:" > Packages-file
+
+    cat Packages-file | grep -B 1 -E "^Version:.*garden-*" | grep -v '^--'  > Packages-"$2".gardenlinux
+    cat Packages-file | grep -B 1 -E "^Version:|!.*garden-*" | grep -v '^--'  > Packages-"$2".mirror
+
+    rm Packages-file
+}
+
+mkdir -p "${thisDir}/tmp"
+trap "rm -rf ${thisDir}/tmp" EXIT
+
+echo '### retrieve repo Package meta info'
+pushd "${thisDir}/tmp"
+get_package_file ${REPO_VERSION} Packages-all.orig all
+get_package_file ${REPO_VERSION} Packages-amd64.orig amd64
+get_package_file ${REPO_VERSION} Packages-arm64.orig arm64
+
+echo "### extract gardenlinux package information to separate file"
+filter_info Packages-all.orig all
+filter_info Packages-amd64.orig amd64
+filter_info Packages-arm64.orig arm64
+
+echo "### Generate Packages YAML"
+${thisDir}/garden-packages-list-generator.py \
+        --packages-mirror-all Packages-all.mirror\
+       	--packages-mirror-amd64 Packages-amd64.mirror\
+       	--packages-mirror-arm64 Packages-arm64.mirror\
+        --packages-gl-all Packages-all.gardenlinux \
+       	--packages-gl-amd64 Packages-amd64.gardenlinux \
+       	--packages-gl-arm64 Packages-arm64.gardenlinux \
+        --output ../available-gardenlinux-packages.yaml
+
+popd
+
