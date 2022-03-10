@@ -59,7 +59,8 @@ def gen_dict_from_package_list(packages_list):
 @click.option('--packages-gl-arm64', type=click.Path(exists=True), help='Pre-formated list of gardenlinix packages available for arm64')
 @click.option('--feature-folder', type=click.Path(exists=True), help='gardenlinux/feature folder containing subfolders with pkg.include files')
 @click.option('--output', type=click.Path(exists=False), help='Path to file where package.yaml will be written to')
-def generate(packages_mirror_all, packages_mirror_amd64, packages_mirror_arm64, packages_gl_all, packages_gl_amd64, packages_gl_arm64, feature_folder, output):
+@click.option('--required-only', is_flag=True,  default=False, help='If flag is set, only packages that are required by a feature will be included on output yaml')
+def generate(packages_mirror_all, packages_mirror_amd64, packages_mirror_arm64, packages_gl_all, packages_gl_amd64, packages_gl_arm64, feature_folder, output, required_only):
 
     packages_mirror_all_dict = gen_dict_from_package_list(packages_mirror_all)
     packages_gl_all_dict = gen_dict_from_package_list(packages_gl_all)
@@ -103,6 +104,12 @@ def generate(packages_mirror_all, packages_mirror_amd64, packages_mirror_arm64, 
                         print(f"{pkg} in debian arm64")
                         packages_dict[dist][arch][pkg]["required-by-feature"] = feature
 
+    if required_only:
+        for dist in packages_dict:
+            for arch in packages_dict[dist]:
+                for pkg in list(packages_dict[dist][arch]):
+                   if packages_dict[dist][arch][pkg]["required-by-feature"] == "None":
+                       del packages_dict[dist][arch][pkg]
 
 
     print("### Debug: output files")

@@ -72,6 +72,7 @@ echo "### Generate Packages YAML"
        	--packages-gl-amd64 Packages-amd64.gardenlinux \
        	--packages-gl-arm64 Packages-arm64.gardenlinux \
 	--feature-folder "${thisDir}"/../../features \
+	--required-only \
         --output ../available-gardenlinux-packages.yaml
 
 
