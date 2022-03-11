@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+
+
+import glinfo.main as glpi
+
+
+def main():
+    glpi.entry_point()
+
+
+if __name__ == '__main__':
+    main()
