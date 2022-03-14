@@ -6,6 +6,10 @@ import os
 import requests
 import re
 
+def get_debian_sectrack_info(package):
+    pass
+
+
 
 def get_feature_pkg_dict(pkg_include_dict):
 
@@ -46,7 +50,7 @@ def gen_dict_from_package_list(packages_list, arch, keyfilter):
             if len(split) < 2:
                 continue
             key = split[0].strip()
-            if key in keyfilter:
+            if keyfilter.casefold() in key.casefold():
                 continue
             value = split[1].strip()
             if "Version" in key:
@@ -78,7 +82,7 @@ def fetch(feature_folder, output, required_only):
 
 
     keyfilter = ['MD5sum', 'SHA1', 'SHA256', 'SHA512', 'Description-Md5',
-                 'Breaks', 'Depends', 'Homepage', 'Maintainer', 'Tag', 'Built-Using']
+                 'Breaks', 'Depends', 'Homepage', 'Maintainer', 'Tag', 'Built-Using', 'Build-Ids']
 
     packages_all_dict = gen_dict_from_package_list(download_repo_pkg_file("all", "dev"), "all", keyfilter)
     packages_amd64_dict = gen_dict_from_package_list(download_repo_pkg_file("amd64", "dev"), "amd64", keyfilter)
