@@ -5,6 +5,7 @@ import click
 import os
 import requests
 import re
+import glinfo.common as glinfo
 
 def get_debian_sectrack_info(package):
     pass
@@ -66,12 +67,7 @@ def gen_dict_from_package_list(packages_list, arch, keyfilter):
 
 def download_repo_pkg_file(arch, version):
     url = f"http://repo.gardenlinux.io/gardenlinux/dists/{version}/main/binary-{arch}/Packages"
-    resp = requests.get(url)
-    content = resp.content.decode("utf-8")
-    for line in content.splitlines():
-            if re.search("<Error><Code>NoSuchKey</Code>",line):
-                raise Exception('Repo not found')
-    return content
+    return glinfo.download_filter(url)
 
 
 @click.command()
