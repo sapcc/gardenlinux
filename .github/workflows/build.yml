@@ -10,4 +10,5 @@ jobs:
         modifier: [ "", "-dev" ]
     steps:
       - uses: actions/checkout@v2
+      - run: apt install podman
       - run: make ARCH=${{ matrix.architecture }} ${{ matrix.target }}${{ matrix.modifier }}
