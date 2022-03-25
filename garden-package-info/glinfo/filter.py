@@ -8,12 +8,6 @@ import re
 import sys
 import glinfo.common as glinfo
 
-def any_match(bykey, byvalue, var):
-    if isinstance(var, dict):
-        for k,v in var.items():
-            if bykey.casefold() in k.casefold() and byvalue.casefold() in v.casefold():
-                return True
-    return False
 
 @click.command(name="filter")
 @click.option("--by", type=(str, str), multiple=True, help='Search package name')

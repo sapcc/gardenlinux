@@ -21,10 +21,11 @@ def download_file(url):
     return content
 
 
-
 def any_match(bykey, byvalue, var):
     if isinstance(var, dict):
         for k,v in var.items():
+            if byvalue.casefold() == "any" and v.casefold() != "none".casefold() and bykey.casefold() in k.casefold():
+                return True
             if bykey.casefold() in k.casefold() and byvalue.casefold() in v.casefold():
                 return True
     return False
