@@ -51,7 +51,7 @@ def gen_dict_from_package_list(packages_list, arch, keyfilter):
             if len(split) < 2:
                 continue
             key = split[0].strip()
-            if keyfilter.casefold() in key.casefold():
+            if key in keyfilter:
                 continue
             value = split[1].strip()
             if "Version" in key:
@@ -67,7 +67,7 @@ def gen_dict_from_package_list(packages_list, arch, keyfilter):
 
 def download_repo_pkg_file(arch, version):
     url = f"http://repo.gardenlinux.io/gardenlinux/dists/{version}/main/binary-{arch}/Packages"
-    return glinfo.download_filter(url)
+    return glinfo.download_file(url)
 
 
 @click.command()
