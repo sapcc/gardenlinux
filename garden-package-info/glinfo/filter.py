@@ -25,14 +25,15 @@ def pfilter(by, select, only_names, input_yaml):
                 if not glinfo.any_match(fk, fv, packages_dict[archk][pkgk]):
                     del packages_dict[archk][pkgk]
 
-    for archk in list(packages_dict):
-        for pkgk in list(packages_dict[archk]):
-            for attribute in list(packages_dict[archk][pkgk]):
-                if only_names:
-                    del packages_dict[archk][pkgk][attribute]
-                    continue
-                if not attribute in select:
-                    del packages_dict[archk][pkgk][attribute]
+    if select:
+        for archk in list(packages_dict):
+            for pkgk in list(packages_dict[archk]):
+                for attribute in list(packages_dict[archk][pkgk]):
+                    if only_names:
+                        del packages_dict[archk][pkgk][attribute]
+                        continue
+                    if not attribute in select:
+                        del packages_dict[archk][pkgk][attribute]
 
 
     yaml.dump(packages_dict, sys.stdout)
