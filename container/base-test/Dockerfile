@@ -27,7 +27,7 @@ RUN echo "deb http://deb.debian.org/debian testing main contrib non-free" > /etc
           shellcheck \
           build-essential \
           libpython3-dev \
-     && (test -x /usr/bin/pytest-3 && ln -sf /usr/bin/pytest-3 /usr/bin/pytest)
+     && (test -x /usr/bin/pytest-3 && ln -sf /usr/bin/pytest-3 /usr/bin/pytest || true)
 
 # pipenv package was removed from bookworm https://tracker.debian.org/pkg/pipenv
 RUN pip install pipenv==2022.4.8
