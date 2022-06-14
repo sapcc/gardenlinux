@@ -69,6 +69,14 @@ outputDir="$(readlink -f "$outputDir")"
 
 gardenlinux_build_cre=${GARDENLINUX_BUILD_CRE:-"sudo podman"}
 
+
+build_os="$(uname -s)"
+if [ "Darwin" == $build_os ]; then
+        uuid="$(/usr/bin/uuidgen)"
+else
+        uuid="$(cat /proc/sys/kernel/random/uuid)"
+fi
+
 userID=$(id -u)
 userGID=$(id -g)
 envArgs=(
@@ -137,7 +145,7 @@ else
 		echo "everything stopped..."
 		exit 1
 	}
-	containerName=$(cat /proc/sys/kernel/random/uuid)
+	containerName=$uuid
 	trap 'stop $containerName' INT
 	${gardenlinux_build_cre} run --name $containerName $dockerArgs --rm \
 		"${buildImage}" \
@@ -147,7 +155,7 @@ else
 	# Run tests if activated
 	if [ ${skip_tests} -eq 0 ] && [[ "${tests}" =~ .*"unittests".* ]]; then
 		echo "Running tests"
-		containerName=$(cat /proc/sys/kernel/random/uuid)
+		containerName=$uuid
 		${gardenlinux_build_cre} run --name $containerName $dockerArgs --rm \
 			"${buildImage}" \
 			/opt/gardenlinux/bin/garden-test &
@@ -155,7 +163,7 @@ else
 	fi
 	if [ ${skip_tests} -eq 0 ] && [[ "${tests}" == *"chroot"* ]]; then
 		echo "Creating config file for chroot tests"
-		containerName=$(cat /proc/sys/kernel/random/uuid)
+		containerName=$uuid
 		prefix="$(${thisDir}/bin/garden-feat --featureDir $featureDir --features "$features" --ignore "$disablefeatures" cname)-$dpkgArch-$version-$commitid"
 		fullfeatures="$(${thisDir}/bin/garden-feat --featureDir $featureDir --features "$features" --ignore "$disablefeatures" features)"
 		configDir=$(${thisDir}/bin/garden-integration-test-config chroot ${prefix} ${fullfeatures} ${outputDir})
@@ -169,7 +177,7 @@ else
 	fi
 	if [ ${skip_tests} -eq 0 ] && [[ "${tests}" == *"kvm"* ]]; then
 		echo "Creating config file for KVM tests"
-		containerName=$(cat /proc/sys/kernel/random/uuid)
+		containerName=$uuid
 		prefix="$(${thisDir}/bin/garden-feat --featureDir $featureDir --features "$features" --ignore "$disablefeatures" cname)-$dpkgArch-$version-$commitid"
 		fullfeatures="$(${thisDir}/bin/garden-feat --featureDir $featureDir --features "$features" --ignore "$disablefeatures" features)"
 		configDir=$(${thisDir}/bin/garden-integration-test-config kvm ${prefix} ${fullfeatures} ${outputDir})

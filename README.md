@@ -15,18 +15,21 @@
 </website-main>
  
 ## Table of Content
-- [Features](#Features)
-- [Quick Start](#Quick-Start)
-  * [Build Requirements](#Build-Requirements)
-  * [Build Options](#Build-Options)
-  * [Building](#Building)
-- [Customizing](#Customizing)
-- [Release](#Release)
-- [Documentation](#Documentation)
-  * [Continous Integration](#Continous-Integration)
-  * [Integration Tests / Unit Tests](#Integration-Tests)
-- [Contributing](#Contributing)
-- [Community](#Community)
+- [Garden Linux](#garden-linux)
+  - [Table of Content](#table-of-content)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+    - [Build Requirements](#build-requirements)
+    - [Build Options](#build-options)
+    - [Building](#building)
+  - [Customizing](#customizing)
+  - [Deploying](#deploying)
+  - [Release](#release)
+  - [Documentation](#documentation)
+    - [Continous Integration](#continous-integration)
+    - [Integration Tests](#integration-tests)
+  - [Contributing](#contributing)
+  - [Community](#community)
 
 ## Features
 - Easy to use build system
@@ -76,6 +79,26 @@ CFSSL requires `GLIBC 2.28`. Therefore, we recommand to build on systems running
 ```
 # Install needed packages
 yum install bash sudo podman crun make gnupg git qemu-kvm qemu-img coreutils
+```
+
+**macOS (>=12):**
+
+Currently, the build support on `macOS` (>=12) is experimental and supports `Intel` (AMD64) and `Apple Silicon` (ARM64/AARCH64) with `M1` and  `M2` CPUs.
+
+Furthermore, building on macOS requires to fulfill further build requirements:
+ * Command Line Tools (CLT) for Xcode
+ * [Homebrew](https://brew.sh)
+ * [Docker](https://docs.docker.com/desktop/mac/install/)
+
+```
+# Install needed packages
+brew install coreutils bash
+
+# Change to bash (Default: ZSH)
+$> bash
+
+# Export Docker as Container Runtime Environment for Garden Linux
+$> export GARDENLINUX_BUILD_CRE=docker
 ```
 
 **Adjust Repository:**

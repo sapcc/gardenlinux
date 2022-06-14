@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -x
 # constants of the universe
 export TZ='UTC' LC_ALL='C'
 umask 0022
@@ -7,7 +7,9 @@ scriptsDir="$(dirname "$(readlink -f "$BASH_SOURCE")")"
 featureDir="$scriptsDir/../features"
 self="$(basename "$0")"
 
-options="$(getopt -n "$BASH_SOURCE" -o '+' --long 'flags:,flags-short:,help:,usage:,sample:' -- "$@")"
+#echo $@
+#exit 1
+options="$(getopt -n "$BASH_SOURCE" -o '+' --long 'flags:,flags-short:,help:,usage:,sample:' -- '$@')"
 dFlags='help,version'
 dFlagsShort='h?'
 dHelp=
@@ -45,6 +47,7 @@ __cgetopt() {
 
 	return 0 
 }
+
 __cgetopt
 
 usage() {
@@ -88,9 +91,7 @@ dgetopt-case() {
 filter_comment () {
     sed "s/#.*$//;/^$/d;s/^[[:space:]]*//;s/[[:space:]]*$//"
 }
-#filter_variables () {
-#    arch=$arch /usr/bin/envsubst
-#}
+
 filter_variables () {
     if [ "${1+defined}" ]; then
 	if [ "$1" == "" ]; then
@@ -115,6 +116,7 @@ filter_variables () {
 	exit 1
     fi
 }
+
 filter_if() {
     awk -F ']' '
       {

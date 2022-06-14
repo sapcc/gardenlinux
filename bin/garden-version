@@ -4,13 +4,23 @@
 
 set -Eeuo pipefail
 
+build_os="$(uname -s)"
 thisDir="$(dirname "$(readlink -f "${BASH_SOURCE}")")"
 versionfile="$(readlink -f "${thisDir}/../VERSION")"
 startdate="Mar 31 00:00:00 UTC 2020"
 
+# Use "gdate" (GNU) which must be installed by "Homebrew"
+# on macOS systems to have a normalized date interface
+if [ "Darwin" == $build_os ]; then
+        cli_date="gdate"
+else
+        cli_date="date"
+fi
+
+
 source "${thisDir}/.constants.sh" \
 	--flags 'major,minor,date,datefull,epoch,git' \
-	--usage '[ --major | --minor | --date | --datefull | --epoch | --git ] [<garden-version>|<timestamp>]' \
+	--usage '[ --major | --minor | --date | --datefull | --epoch | --git ] [garden-version|timestamp]' \
 	--sample '20200427' \
 	--sample '--date 27.1' \
 	--help   "Generates version dependent values according to the file $versionfile or to the parameter handed over. Versions can be converted adequately
@@ -22,11 +32,12 @@ source "${thisDir}/.constants.sh" \
 --epoch		prints the seconds sinc 19700101 till garden-version
 --git		prints the version plus the last git-hash
 
-If no parameter is specified the full version <major>.<minor> e.g. 27.5 is printed. The version is taken from $versionfile. On HEAD this should always evaluate to 'today', on branch versions this always should resolve to the next version that will be build e.g. 27.1. This implies there is no branch with a .0 in the $versionfile file.
+If no parameter is specified the full version major.minor e.g. 27.5 is printed. The version is taken from $versionfile. On HEAD this should always evaluate to 'today', on branch versions this always should resolve to the next version that will be build e.g. 27.1. This implies there is no branch with a .0 in the $versionfile file.
 The version calculated expresses the days since $startdate. Calculation is always UTC based."
 
 eval "${dgetopt}"
 typeout="default"
+
 while true; do
 	flag="$1"; shift
 	dgetopt-case "${flag}"
@@ -37,13 +48,14 @@ while true; do
 		*) 	eusage "unknown flag '${flag}'" ;;
 	esac
 done
-input="${1:-$(sed -e "s/#.*\$//" -e "/^$/d" "${versionfile}")}";  shift || true
-input=$(sed "s/^[[:space:]]*//;s/[[:space:]]*\$//" <<< ${input})
+
+input="$(tail -n1 ${versionfile})"
 
 # no version / timestamp on versionfile
 [ -z ${input} ] && input="dev"
 
 minor=0
+
 if [[ ${input} =~ ^[0-9\.]*$ && $(cut -d. -f1 <<< ${input}) -lt 10000000 ]]; 
 then	[ $(cut -d. -sf3 <<< ${input}) ] && eusage "invalid version format ${input}. should be <major>[.<minor>]"
 
@@ -53,11 +65,11 @@ then	[ $(cut -d. -sf3 <<< ${input}) ] && eusage "invalid version format ${input}
 	fi
 	version="${major}.${minor}"
 else	if	[[ ${input} = dev ]];
-	then	indate=$(date --date "today" +%s 2>/dev/null)
-		major="$(( (${indate} - $(date --date "${startdate}" +%s)) / (60*60*24) ))"
+	then	indate=$($cli_date --date "today" +%s 2>/dev/null)
+		major="$(( (${indate} - $($cli_date --date "${startdate}" +%s)) / (60*60*24) ))"
 		version=dev
-	else	indate=$(date --date "${input}" +%s 2>/dev/null) || eusage "invalid date ${input}"
-		major="$(( (${indate} - $(date --date "${startdate}" +%s)) / (60*60*24) ))"
+	else	indate=$($cli_date --date "${input}" +%s 2>/dev/null) || eusage "invalid date ${input}"
+		major="$(( (${indate} - $($cli_date --date "${startdate}" +%s)) / (60*60*24) ))"
 		version="${major}.${minor}"
 	fi
 fi
@@ -65,10 +77,9 @@ fi
 case "${typeout}" in
 	--major)	echo ${major} ;;
 	--minor)	echo ${minor} ;;
-	--date)		date --date "${startdate} + ${major} days" +%Y%m%d ;;
-	--datefull)	date --date "${startdate} + ${major} days" +%Y%m%dT%H%M%SZ ;;
-	--epoch)	date --date "${startdate} + ${major} days" +%s ;;
+	--date)		$cli_date --date "${startdate} + ${major} days" +%Y%m%d ;;
+	--datefull)	$cli_date --date "${startdate} + ${major} days" +%Y%m%dT%H%M%SZ ;;
+	--epoch)	$cli_date --date "${startdate} + ${major} days" +%s ;;
 	--git)		echo "${version}-$(git -C "${scriptsDir}" rev-parse --short 'HEAD^{commit}')" ;;
         *)		echo "${version}" ;;
 esac
-

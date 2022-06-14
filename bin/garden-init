@@ -3,6 +3,15 @@ set -Eeuo pipefail
 
 # Contains sources from https://github.com/debuerreotype/debuerreotype
 
+build_os="$(uname -s)"
+# Use "gdate" (GNU) which must be installed by "Homebrew"
+# on macOS systems to have a normalized date interface
+if [ "Darwin" == $build_os ]; then
+        cli_date="gdate"
+else
+        cli_date="date"
+fi
+
 thisDir="$(dirname "$(readlink -f "$BASH_SOURCE")")"
 source "$thisDir/.constants.sh" \
 	--flags 'debian,debian-ports,non-debian' \
@@ -78,7 +87,7 @@ else
 	# TODO re-calculate "timestamp" during garden-tar/fixup (possibly scraping from /var/lib/apt/lists/*Release* instead?)
 fi
 
-epoch="$(date --date "$timestamp" '+%s')"
+epoch="$($cli_date --date "$timestamp" '+%s')"
 export SOURCE_DATE_EPOCH="$epoch"
 
 mirror="https://repo.gardenlinux.io/gardenlinux"
