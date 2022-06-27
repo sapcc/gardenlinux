@@ -156,6 +156,11 @@ done
 
 [ $(id -u) == 0 ] && virtOpts=(	"-runas nobody" )
 
+virtOpts+=( "-object memory-backend-epc,id=mem1,size=64M,prealloc=on",
+            "-object memory-backend-epc,id=mem2,size=28M",
+            "-M sgx-epc.0.memdev=mem1,sgx-epc.1.memdev=mem2" )
+
+
 [[ "${memory: -1}" =~ [0-9] ]] && memory="${memory}Mi"
 memory=$(numfmt --from=auto --suffix="B" --format "%f" ${memory} | head -c-2)
 virtOpts+=(	"-smp $cpu"
