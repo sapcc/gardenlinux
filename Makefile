@@ -46,6 +46,10 @@ all_prod: ali aws gcp azure metal openstack vmware kvm
 
 all_dev: ali-dev aws-dev gcp-dev azure-dev metal-dev openstack-dev vmware-dev kvm-dev
 
+# simple base image comes without ssh or anything like that, so pytests can't even connect to it => skip tests
+oci_base_container: build-environment $(SECUREBOOT_CRT)
+	./build.sh $(BUILD_OPTS) --skip-build --skip-tests --features base,_oci $(BUILDDIR) $(VERSION)
+
 ALI_IMAGE_NAME=$(IMAGE_BASENAME)-ali-$(VERSION)
 ali: build-environment $(SECUREBOOT_CRT)
 	./build.sh $(BUILD_OPTS) --skip-build --features server,cloud,gardener,ali $(BUILDDIR) $(VERSION)

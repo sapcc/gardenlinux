@@ -1,0 +1,93 @@
+#!/bin/bash
+
+set -Eexufo pipefail
+
+rootfs="$1"
+targetBase="$(realpath $2)"
+
+rootfs_work="$(mktemp -d)"
+cp -a "$rootfs/." "$rootfs_work"
+
+find "$rootfs_work/var/log/" -type f -delete
+
+dir="$(mktemp -d)"
+pushd "$dir"
+
+mkdir -p blobs/sha256
+
+chroot "$rootfs_work" tar c / > layer.tar
+rm -rf "$rootfs_work"
+
+layer_size="$(stat -c %s layer.tar)"
+layer_hash="$(sha256sum < layer.tar | cut -c -64)"
+mv layer.tar "blobs/sha256/$layer_hash"
+
+cat << EOF > config.json
+{
+	"architecture": "$arch",
+	"os": "linux",
+	"config": {
+		"Env": [ "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" ],
+		"Entrypoint": [ "/bin/bash" ]
+	},
+	"rootfs": {
+		"type": "layers",
+		"diff_ids": [ "sha256:$layer_hash" ]
+	}
+}
+EOF
+
+config_size="$(stat -c %s config.json)"
+config_hash="$(sha256sum < config.json | cut -c -64)"
+mv config.json "blobs/sha256/$config_hash"
+
+cat << EOF > manifest.json
+{
+	"schemaVersion": 2,
+	"mediaType": "application/vnd.oci.image.manifest.v1+json",
+	"config": {
+		"mediaType": "application/vnd.oci.image.config.v1+json",
+		"size": $config_size,
+		"digest": "sha256:$config_hash"
+	},
+	"layers": [
+		{
+			"mediaType": "application/vnd.oci.image.layer.v1.tar",
+			"size": $layer_size,
+			"digest": "sha256:$layer_hash"
+		}
+	]
+}
+EOF
+
+manifest_size="$(stat -c %s manifest.json)"
+manifest_hash="$(sha256sum < manifest.json | cut -c -64)"
+mv manifest.json "blobs/sha256/$manifest_hash"
+
+cat << EOF > index.json
+{
+	"schemaVersion": 2,
+	"manifests": [
+		{
+			"mediaType": "application/vnd.oci.image.manifest.v1+json",
+			"digest": "sha256:$manifest_hash",
+			"size": $manifest_size,
+			"platform": {
+				"architecture": "$arch",
+				"os": "linux"
+			}
+		}
+	]
+}
+EOF
+
+cat << EOF > oci-layout
+{
+	"imageLayoutVersion": "1.0.0"
+}
+EOF
+
+tar c blobs index.json oci-layout > "$targetBase.oci.tar"
+
+popd
+rm -rf "$dir"
