@@ -13,7 +13,7 @@ on:
 jobs:
   upload_to_s3:
     name: upload to S3
-    runs-on: ec2-gardenlinux-amd64
+    runs-on: ec2-gardenlinux-amd64-test
     permissions:
       id-token: write
     strategy:

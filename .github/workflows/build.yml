@@ -7,7 +7,7 @@ on:
         default: today
 jobs:
   cert:
-    runs-on: ec2-gardenlinux-amd64
+    runs-on: ec2-gardenlinux-amd64-test
     steps:
       - uses: actions/checkout@v2
       - name: bulid certificates
@@ -20,7 +20,7 @@ jobs:
           path: cert.tar.gz
   images:
     needs: cert
-    runs-on: ec2-gardenlinux-${{ matrix.architecture }}
+    runs-on: ec2-gardenlinux-${{ matrix.architecture }}-test
     strategy:
       matrix:
         architecture: [ amd64, arm64 ]
