@@ -1,0 +1,14 @@
+name: test aws config
+on: push
+jobs:
+  test:
+    runs-on: ec2-gardenlinux-amd64
+    permissions:
+      id-token: write
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE }}
+          role-session-name: ${{ secrets.AWS_OIDC_SESSION }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - run: sudo -E podman run --rm -e 'AWS_*' debian:testing-slim /bin/bash -c 'env && apt update && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends awscli && aws s3 ls gardenlinux-github-releases'
