@@ -66,14 +66,28 @@ grub-install --boot-directory="$tmp_dir" --recheck "$blk_dev"
 . /mnt/onie-boot/onie/grub/grub-variables
 
 
+kernel="$(cd "$mnt/boot/" && find . -name 'vmlinuz-*-amd64' | sed 's#^\./##' | tail -n 1)"
+initramfs="$(cd "$mnt/boot/" && find . -name 'initrd.img-*-amd64' | sed 's#^\./##' | tail -n 1)"
+[ -b "$kernel" ] && [ -b "$initramfs" ]
+
+cat <<EOF > "$mnt/grub/grub.cfg"
+$GRUB_SERIAL_COMMAND
+terminal_input $GRUB_TERMINAL_INPUT
+terminal_output $GRUB_TERMINAL_OUTPUT
+set timeout=5
+menuentry 'Garden Linux' {
+        search --no-floppy --label --set=root $ROOT_PART_LABEL
+        linux   /boot/$kernel $GRUB_CMDLINE_LINUX \$ONIE_EXTRA_CMDLINE_LINUX root=LABEL=ROOT rw
+        initrd  /boot/$initramfs
+}
+EOF
+
+/mnt/onie-boot/onie/grub.d/50_onie_grub >> "$mnt/grub/grub.cfg"
+
 
 echo "### Cleaning up temp installation dir"
 umount $tmp_dir
 rm -rf $tmp_dir
-
-
-echo "### "
-
 
 
 
