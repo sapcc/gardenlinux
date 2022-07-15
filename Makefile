@@ -153,6 +153,12 @@ firecracker: build-environment $(SECUREBOOT_CRT)
 firecracker-dev: build-environment $(SECUREBOOT_CRT)
 	./build.sh $(BUILD_OPTS) --skip-build --features firecracker,_dev $(BUILDDIR) $(VERSION)
 
+onie: build-environment $(SECUREBOOT_CRT)
+	./build.sh $(BUILD_OPTS) --skip-build --features onie $(BUILDDIR) $(VERSION)
+
+onie-dev: build-environment $(SECUREBOOT_CRT)
+	./build.sh $(BUILD_OPTS) --skip-build --features onie,_dev $(BUILDDIR) $(VERSION)
+
 pxe: build-environment $(SECUREBOOT_CRT)
 	./build.sh $(BUILD_OPTS) --skip-build --features metal,server,_pxe $(BUILDDIR) $(VERSION)
 

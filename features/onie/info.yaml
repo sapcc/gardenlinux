@@ -1,0 +1,5 @@
+description: onie
+type: platform
+features:
+  include:
+    - server
