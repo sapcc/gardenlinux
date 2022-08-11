@@ -17,7 +17,8 @@ find "$rootfs_work/var/log/" -type f -delete
 
 output_file="${targetBase}.bin"
 tmp_dir=$(mktemp --directory)
-rootfs_tar="${tmp_dir}/rootfs.tar"
+rootfs_tar="${tmp_dir}/rootfs.tar.xz"
+rootfs_tar_base64="${tmp_dir}/rootfs.tar.xz.base64"
 
 size="${size:-$(du -sb "$rootfs_work" | awk '{ min_size_bytes = min_size * MB; size = $1 * 1.5; padded_size = size + (MB - (size % MB) % MB); if (padded_size < min_size_bytes) padded_size = min_size_bytes; print (padded_size / MB) "MiB" }' "MB=1048576" "min_size=64")}"
 truncate -s "$size" "$file_work"
@@ -27,11 +28,12 @@ make_reproducible_ext4 -t "$timestamp" -h "gardenlinux:$version:onie:rootfs" -m 
 
 rm -rf "$rootfs_work"
 
-tar -cf "$rootfs_tar" "$file_work"
-sha1=$(cat $rootfs_tar | sha1sum | awk '{print $1}')
+tar -cJf "$rootfs_tar" "$file_work"
+base64 "$rootfs_tar" > "$rootfs_tar_base64"
+sha1=$( cat "$rootfs_tar_base64" | sha1sum | awk '{print $1}')
 cp "$wd/nos-installer.sh" "$output_file"
 sed -i -e "s/%%IMAGE_SHA1%%/$sha1/" "$output_file"
-base64 "$rootfs_tar" >> "$output_file" 
+cat "$rootfs_tar_base64" >> "$output_file" 
 
 
 rm -rf $tmp_dir

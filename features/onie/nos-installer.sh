@@ -20,8 +20,6 @@ fi
 
 echo "### Creating temp installation dir"
 entry_wd=$(pwd)
-tmp_dir=$(mktemp -d)
-mount -t tmpfs tmpfs-installer $tmp_dir || exit 1
 
 echo "### Checking Requirements"
 [ "$(onie-sysinfo -c)" = "x86_64" ]
@@ -49,15 +47,16 @@ blk_suffix=""
 part_dev="$blk_dev$blk_suffix$part_num"
 
 echo "### Creating filesystems"
+mnt="$(mktemp -d)"
 mkfs.ext4 -F -L "$ROOT_PART_LABEL" "$part_dev"
-mount -t ext4 -o defaults,rw "$part_dev" "$tmp_dir"
+mount -t ext4 -o defaults,rw "$part_dev" "$mnt"
 
 echo "### Self extracting garden linux rootfs"
-sed '1,/^# --- EXIT MARKER 8c5daf21-e9d9-4a7f-b4b9-fd653d8c701b ---$/d' "$0" | base64 -d | xz -d | tar -x -C "$tmp_dir"
+sed '1,/^# --- EXIT MARKER 8c5daf21-e9d9-4a7f-b4b9-fd653d8c701b ---$/d' "$0" | base64 -d | tar -Jx -C "$mnt"
 
 
 echo "### Installing and Configuring GRUB "
-grub-install --boot-directory="$tmp_dir" --recheck "$blk_dev"
+grub-install --boot-directory="$mnt" --recheck "$blk_dev"
 
 . /mnt/onie-boot/onie/grub/grub-variables
 
@@ -82,9 +81,8 @@ EOF
 
 
 echo "### Cleaning up temp installation dir"
-umount $tmp_dir
-rm -rf $tmp_dir
-
+umount $mnt
+rm -rf $mnt
 
 onie-nos-mode -s
 
