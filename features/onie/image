@@ -27,13 +27,12 @@ make_reproducible_ext4 -t "$timestamp" -h "gardenlinux:$version:onie:rootfs" -m 
 
 rm -rf "$rootfs_work"
 
-cp "$wd/nos-installer.sh" "$output_file"
 tar -cf "$rootfs_tar" "$file_work"
-
-cat "$rootfs_tar" >> "$output_file" 
+sha1=$(cat $rootfs_tar | sha1sum | awk '{print $1}')
+cp "$wd/nos-installer.sh" "$output_file"
+sed -i -e "s/%%IMAGE_SHA1%%/$sha1/" "$output_file"
+base64 "$rootfs_tar" >> "$output_file" 
 
 
 rm -rf $tmp_dir
 rm -rf $file_work
-
-

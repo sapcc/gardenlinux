@@ -5,32 +5,28 @@
 set -exufo pipefail
 
 ROOT_PART_LABEL="ROOT"
+payload_sha1=%%IMAGE_SHA1%%
+sha1=$(sed '1,/^# --- EXIT MARKER 8c5daf21-e9d9-4a7f-b4b9-fd653d8c701b ---$/d' "$0" | sha1sum | awk '{ print $1 }')
 
 
 echo "### Verifying image checksum"
-# TODO: implement verify checksum
-echo "    Skipped (not implemented)"
-
+if [ "$sha1" != "$payload_sha1" ] ; then
+    echo
+    echo "ERROR: Unable to verify archive checksum"
+    echo "Expected: $payload_sha1"
+    echo "Found   : $sha1"
+    exit 1
+fi
 
 echo "### Creating temp installation dir"
 entry_wd=$(pwd)
 tmp_dir=$(mktemp -d)
 mount -t tmpfs tmpfs-installer $tmp_dir || exit 1
 
-
-echo "### Preparing Garden Linux image archive"
-cd $tmp_dir
-sed -e '1,/^exit_marker$/d' $archive_path | tar xf - || exit 1
-cd $entry_wd
-
-
 echo "### Checking Requirements"
-
-if [ ! -d "/sys/firmware/efi/efivars" ]; then
-    echo "### Aborting. Only UEFI boot is implemented"
-    exit 1
-fi
-
+[ "$(onie-sysinfo -c)" = "x86_64" ]
+[ "$(onie-sysinfo -t)" = "gpt" ]
+[ "$(onie-sysinfo -l)" = "bios" ]
 
 echo "### Creating partition layout"
 
@@ -90,9 +86,8 @@ umount $tmp_dir
 rm -rf $tmp_dir
 
 
-
 onie-nos-mode -s
 
 echo "### Success"
-
+exit 0
 # --- EXIT MARKER 8c5daf21-e9d9-4a7f-b4b9-fd653d8c701b ---
