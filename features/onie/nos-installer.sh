@@ -52,8 +52,9 @@ mkfs.ext4 -F -L "$ROOT_PART_LABEL" "$part_dev"
 mount -t ext4 -o defaults,rw "$part_dev" "$mnt"
 
 echo "### Self extracting garden linux rootfs"
-sed '1,/^# --- EXIT MARKER 8c5daf21-e9d9-4a7f-b4b9-fd653d8c701b ---$/d' "$0" | base64 -d | tar -Jx -C "$mnt"
+sed '1,/^# --- EXIT MARKER 8c5daf21-e9d9-4a7f-b4b9-fd653d8c701b ---$/d' "$0" | base64 -d | tar -Jx -C "$mnt" --strip-components=1
 
+ls $mnt
 
 echo "### Installing and Configuring GRUB "
 grub-install --boot-directory="$mnt" --recheck "$blk_dev"

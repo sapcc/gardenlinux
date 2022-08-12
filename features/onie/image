@@ -6,35 +6,36 @@ set -Eexuo pipefail
 rootfs="$1"
 targetBase="$2"
 
+ls $rootfs
+
+
 thisScript=$(realpath "$0")
 wd=$(dirname "$thisScript")
 
-rootfs_work="$(mktemp -d)"
-file_work="$(mktemp)"
-cp -a "$rootfs/." "$rootfs_work"
 
-find "$rootfs_work/var/log/" -type f -delete
+find "$rootfs/var/log/" -type f -delete
 
-output_file="${targetBase}.bin"
+#file_work="$(mktemp)"
+nos_installer_file="${targetBase}.onie-installer.bin"
 tmp_dir=$(mktemp --directory)
 rootfs_tar="${tmp_dir}/rootfs.tar.xz"
 rootfs_tar_base64="${tmp_dir}/rootfs.tar.xz.base64"
 
-size="${size:-$(du -sb "$rootfs_work" | awk '{ min_size_bytes = min_size * MB; size = $1 * 1.5; padded_size = size + (MB - (size % MB) % MB); if (padded_size < min_size_bytes) padded_size = min_size_bytes; print (padded_size / MB) "MiB" }' "MB=1048576" "min_size=64")}"
-truncate -s "$size" "$file_work"
+echo "### Make Nos Installer"
+#size="${size:-$(du -sb "$rootfs" | awk '{ min_size_bytes = min_size * MB; size = $1 * 1.5; padded_size = size + (MB - (size % MB) % MB); if (padded_size < min_size_bytes) padded_size = min_size_bytes; print (padded_size / MB) "MiB" }' "MB=1048576" "min_size=64")}"
 
-timestamp=$(garden-version --epoch "$version")
-make_reproducible_ext4 -t "$timestamp" -h "gardenlinux:$version:onie:rootfs" -m -p 16 "$rootfs_work" "$file_work"
-
-rm -rf "$rootfs_work"
-
-tar -cJf "$rootfs_tar" "$file_work"
+#truncate -s "$size" "$file_work"
+#timestamp=$(garden-version --epoch "$version")
+#make_reproducible_ext4 -t "$timestamp" -h "gardenlinux:$version:onie:rootfs" -m -p 16 "$rootfs" "$file_work"
+ls $rootfs
+tar -cJf "$rootfs_tar" $rootfs
 base64 "$rootfs_tar" > "$rootfs_tar_base64"
 sha1=$( cat "$rootfs_tar_base64" | sha1sum | awk '{print $1}')
-cp "$wd/nos-installer.sh" "$output_file"
-sed -i -e "s/%%IMAGE_SHA1%%/$sha1/" "$output_file"
-cat "$rootfs_tar_base64" >> "$output_file" 
+cp "$wd/nos-installer.sh" "$nos_installer_file"
+sed -i -e "s/%%IMAGE_SHA1%%/$sha1/" "$nos_installer_file"
+cat "$rootfs_tar_base64" >> "$nos_installer_file" 
+
 
 
 rm -rf $tmp_dir
-rm -rf $file_work
+#rm -rf "$file_work"
