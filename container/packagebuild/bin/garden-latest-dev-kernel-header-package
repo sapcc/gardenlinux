@@ -1,0 +1,26 @@
+#!/bin/bash
+
+KERNEL_ARCH=${ARKERNEL_ARCHCH:-"amd64"}
+KERNEL_BASE=${KERNEL_BASE:-"5.15"}
+GL_APT_DIST=${GL_APT_DIST:-"dev"}
+SCRIPT=$(realpath "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+KERNEL_FLAVOUR=${KERNEL_FLAVOUR:-}
+
+
+LATEST_VERSION=$("${SCRIPTPATH}/garden-list-kernel-header-versions" | \
+      sort -r | \
+      head -n 1 | \
+      cut -d '-' -f3)
+if [ -z "${KERNEL_FLAVOUR}" ];then
+    "${SCRIPTPATH}/garden-list-kernel-header-versions" | \
+        grep -- "${LATEST_VERSION}" | \
+        grep -- "${KERNEL_ARCH}" | \
+        grep -Ev -- "cloud|rt|firecracker"
+else
+    "${SCRIPTPATH}/garden-list-kernel-header-versions" | \
+        grep -- "${LATEST_VERSION}" | \
+        grep -- "${KERNEL_ARCH}" | \
+        grep -- "${KERNEL_FLAVOUR}"
+fi
+

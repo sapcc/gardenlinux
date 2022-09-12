@@ -1,6 +1,7 @@
-VERSION=`../bin/garden-version`
+VERSION=$(shell ../bin/garden-version)
 VERSION_NUMBER_MAJOR=$(shell ../bin/garden-version --major)
 VERSION_NUMBER_MINOR=$(shell ../bin/garden-version --minor)
+VERSION_DATE=$(shell ../bin/garden-version --date)
 VERSION_NUMBER=$(VERSION_NUMBER_MAJOR).$(VERSION_NUMBER_MINOR)
 ALTNAME=
 ALTNAME_INTERNAL=$(shell [ -n "$(ALTNAME)" ] && printf "%s %s" "-t" "$(ALTNAME)" )
@@ -48,14 +49,11 @@ build-integration-test: build-base-test
 	cp ../tests/Pipfile* integration-test/_pipfiles
 	@$(GARDENLINUX_BUILD_CRE) build --build-arg VERSION=$(VERSION) -t gardenlinux/integration-test:$(VERSION) integration-test
 
-.PHONY: build-kernelmodule
-build-kernelmodule: build
-	rm -rf build-kernelmodule/packages
-	mkdir -p build-kernelmodule/packages/
-	cp ../.packages/main/l/linux/linux-kbuild*$(KERNEL_VERSION)*.deb build-kernelmodule/packages/ || (echo "Error: Build Kernel packages first." && exit 1)
-	cp ../.packages/main/l/linux/linux-compiler-gcc*$(KERNEL_VERSION)*.deb build-kernelmodule/packages/ || (echo "Error: Build Kernel packages first." && exit 1)
-	cp ../.packages/main/l/linux/linux-headers*$(KERNEL_VERSION)*.deb build-kernelmodule/packages/ || (echo "Error: Build Kernel packages first." && exit 1)
-	@$(GARDENLINUX_BUILD_CRE) build -t gardenlinux/build-kernelmodule:$(KERNEL_VERSION) build-kernelmodule
+
+.PHONY: build-packagebuild
+build-packagebuild:
+	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION)" "$(VERSION_DATE)" "$(VERSION_NUMBER)"
+
 
 .PHONY: clean
 clean:

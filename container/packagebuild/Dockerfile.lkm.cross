@@ -1,0 +1,61 @@
+ARG VERSION_DATE
+ARG BASE_IMAGE=gardenlinux/packagebuild:${VERSION_DATE}
+FROM ${BASE_IMAGE}
+
+ARG TARGET_ARCH
+ARG VERSION_FULL
+
+RUN dpkg --add-architecture $TARGET_ARCH
+RUN apt-get update -qy
+
+# Developer Tools
+RUN apt-get install -qy --no-install-recommends \
+    sudo \
+    vim \
+    quilt \
+    curl
+
+# Trust Garden Linux key to add
+RUN curl -fsSL https://raw.githubusercontent.com/gardenlinux/gardenlinux/main/gardenlinux.asc | apt-key add -
+RUN echo -n "deb http://repo.gardenlinux.io/gardenlinux $VERSION_FULL main" >> /etc/apt/sources.list 
+RUN apt-get update -qy
+
+# Kernel Module build dependencies
+RUN apt-get install -qy --no-install-recommends \
+    git \
+    rsync \
+    wget \
+    curl \
+    gnupg \
+    python3 \
+    build-essential \
+    bc \
+    kmod \
+    cpio \
+    flex \
+    libncurses5-dev \
+    libelf-dev \
+    libssl-dev \
+    dwarves \
+    devscripts \
+    kernel-wedge \
+    pristine-lfs \
+    python3-debian \
+    dkms
+
+# Install Garden Linux tools for header discovery
+RUN mv /bin/uname /bin/uname-orig
+ADD ./bin/* /bin/
+
+
+
+# Install kernel headers for all supported arch+flavour combinations
+RUN TARGET_HEADER="$(KERNEL_ARCH=$TARGET_ARCH KERNEL_FLAVOUR=cloud /bin/garden-latest-dev-kernel-header-package)" && \
+    apt-get install -qy "${TARGET_HEADER}"; 
+
+# Install kernel headers for all supported arch+flavour combinations
+RUN TARGET_HEADER="$(KERNEL_ARCH=$TARGET_ARCH KERNEL_FLAVOUR=firecracker /bin/garden-latest-dev-kernel-header-package)" && \
+    apt-get install -qy "${TARGET_HEADER}"; 
+
+RUN TARGET_HEADER="$(KERNEL_ARCH=$TARGET_ARCH /bin/garden-latest-dev-kernel-header-package)" && \
+    apt-get install -qy "${TARGET_HEADER}"; 

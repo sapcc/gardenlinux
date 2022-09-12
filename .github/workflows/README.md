@@ -35,3 +35,23 @@ Stable branches must be manually created.
 1. On successful tests, images are handed over to Tekton Pipeline for publishing
 
 See [stable.yml](stable.yml) for implementation details. 
+
+
+# Container
+
+## Integration test Container
+Provides dependencies for running tests on the cloud platforms.
+
+See [container-integrationtest.yml](container-integrationtest.yml)
+
+## Package Build Container
+Based on debian slim container image. Additonally provides dependencies for packages builds.
+The snapshot version is used, to make the build of previous versions reproducible.
+
+See [container-packagebuild.yml](container-packagebuild.yml)
+
+
+## Kernel Module Container
+Based on package build container, additionally provides Garden Linux kernel header and DKMS.
+
+See [container-kernelmodule.yml](container-kernelmodule.yml)
