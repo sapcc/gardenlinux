@@ -9,13 +9,14 @@ jobs:
     runs-on: ec2-gardenlinux-amd64
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: make packagebuild container (all flavors, since they built up on each other)
         run: make --directory=container build-packagebuild
 
   upload_container:
     name: upload container
     runs-on: ec2-gardenlinux-amd64
+    needs: [ build_container ]
     strategy:
       matrix:
         flavor: [ -go, -lkm, '' ]
