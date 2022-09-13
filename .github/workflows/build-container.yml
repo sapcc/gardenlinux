@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         # TODO: add integration-test to targets before PR
-        target: [ packagebuild, packagebuild-go, packagebuild-lkm]
+        target: [ packagebuild ]
     steps:
       - uses: actions/checkout@v3
 
