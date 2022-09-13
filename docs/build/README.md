@@ -47,11 +47,6 @@ We provide a build container that come with Garden Linux linux-headers installed
 These build containers have a `uname -r` wrapper installed. 
 This wrapper outputs the latest installed kernel header in that container.
 
-Container is created here: https://gitlab.com/gardenlinux/driver/gardenlinux-driver-build-container
-
-```
-docker pull registry.gitlab.com/gardenlinux/driver/gardenlinux-driver-build-container/gl-driver-build:dev
-```
 
 1. Load your kernel module sources into the container
 1. If the Makefile does not use `uname -r`, make sure to reference the correct kernel headers
