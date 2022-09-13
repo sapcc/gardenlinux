@@ -3,5 +3,4 @@ on: [ push, pull_request ]
 jobs:
   build:
     uses: ./.github/workflows/build-container.yml
-    with:
-      version: today
+

@@ -18,7 +18,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u $ --password-stdin
 
       - name: make test container
-        run: make --directory=container build-$target
+        run: make --directory=container build-${{ matrix.target }}
 
       - name: Set VERSION from garden-version
         run: echo "VERSION=$(bin/garden-version)" >> $GITHUB_ENV
@@ -31,9 +31,9 @@ jobs:
 
       - name: upload container to ghcr.io
         run: |
-          sudo podman tag "gardenlinux/$target:$VERSION" "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION"
-          sudo podman tag "gardenlinux/$target:$VERSION_DATE" "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION_DATE"
-          sudo podman tag "gardenlinux/$target:$VERSION_FULL" "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION_FULL"
-          sudo podman push "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION"
-          sudo podman push "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION_DATE"
-          sudo podman push "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION_FULL"
+          sudo podman tag "gardenlinux/${{ matrix.target }}:${{ env.VERSION }}" "ghcr.io/gardenlinux/gardenlinux/${{ matrix.target }}:${{ env.VERSION }}"
+          sudo podman tag "gardenlinux/${{ matrix.target }}:${{ env.VERSION_DATE }}" "ghcr.io/gardenlinux/gardenlinux/${{ matrix.target }}:${{ env.VERSION_DATE }}"
+          sudo podman tag "gardenlinux/${{ matrix.target }}:${{ env.VERSION_FULL }}" "ghcr.io/gardenlinux/gardenlinux/${{ matrix.target }}:${{ env.VERSION_FULL }}"
+          sudo podman push "ghcr.io/gardenlinux/gardenlinux/${{ matrix.target }}:${{ env.VERSION }}"
+          sudo podman push "ghcr.io/gardenlinux/gardenlinux/${{ matrix.target }}:${{ env.VERSION_DATE }}"
+          sudo podman push "ghcr.io/gardenlinux/gardenlinux/${{ matrix.target }}:${{ env.VERSION_FULL }}"
