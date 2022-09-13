@@ -13,5 +13,5 @@ jobs:
       - name: login to ghcr.io
         run: echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io -u $ --password-stdin
 
-      - name: make packagebuild container (all flavors, since they built up on each other)
+      - name: make and upload all packagebuild container flavors
         run: GHCR_UPLOAD=1 make --directory=container build-packagebuild

@@ -56,7 +56,8 @@ ${GARDENLINUX_BUILD_CRE} build \
     -f ${thisDir}/Dockerfile.lkm.cross \
     ${thisDir} 
 
-
+# Uploading the images in this script allows to easily upload them also manually if required. 
+# Requirements: GHCR_UPLOAD variable is set, and user is logged in to ghcr
 if [ -v GHCR_UPLOAD ];then
     ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION}"
     ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_FULL}"
