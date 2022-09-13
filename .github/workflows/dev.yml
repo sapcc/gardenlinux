@@ -2,5 +2,4 @@ name: dev
 on: [ push, pull_request ]
 jobs:
   build:
-    uses: ./.github/workflows/build-container.yml
-
+    uses: ./.github/workflows/build-packagebuild-container.yml
