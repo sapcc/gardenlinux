@@ -9,7 +9,8 @@ jobs:
     runs-on: ec2-gardenlinux-amd64
     strategy:
       matrix:
-        target: [ integration-test, packagebuild]
+        # TODO: add integration-test to targets before PR
+        target: [ packagebuild, packagebuild-go, packagebuild-lkm]
     steps:
       - uses: actions/checkout@v3
 
@@ -19,9 +20,20 @@ jobs:
       - name: make test container
         run: make --directory=container build-$target
 
+      - name: Set VERSION from garden-version
+        run: echo "VERSION=$(bin/garden-version)" >> $GITHUB_ENV
+      
+      - name: Set VERSION_DATE from garden-version
+        run: echo "VERSION_DATE=$(bin/garden-version --date)" >> $GITHUB_ENV
+
+      - name: Set VERSION_FULL from garden-version
+        run: echo "VERSION_FULL=$(bin/garden-version --major).$(bin/garden-version --minor)" >> $GITHUB_ENV
+
       - name: upload container to ghcr.io
         run: |
-          sudo podman tag "gardenlinux/$target:today" "ghcr.io/gardenlinux/gardenlinux/$target:today"
-          sudo podman tag "gardenlinux/$target:today" "ghcr.io/gardenlinux/gardenlinux/$target:$GITHUB_SHA"
-          sudo podman push "ghcr.io/gardenlinux/gardenlinux/$target:today"
-          sudo podman push "ghcr.io/gardenlinux/gardenlinux/$target:$GITHUB_SHA"
+          sudo podman tag "gardenlinux/$target:$VERSION" "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION"
+          sudo podman tag "gardenlinux/$target:$VERSION_DATE" "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION_DATE"
+          sudo podman tag "gardenlinux/$target:$VERSION_FULL" "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION_FULL"
+          sudo podman push "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION"
+          sudo podman push "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION_DATE"
+          sudo podman push "ghcr.io/gardenlinux/gardenlinux/$target:$VERSION_FULL"
