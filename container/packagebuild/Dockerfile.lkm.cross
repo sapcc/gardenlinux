@@ -47,15 +47,13 @@ RUN apt-get install -qy --no-install-recommends \
 RUN mv /bin/uname /bin/uname-orig
 ADD ./bin/* /bin/
 
-
-
 # Install kernel headers for all supported arch+flavour combinations
+# cloud
 RUN TARGET_HEADER="$(KERNEL_ARCH=$TARGET_ARCH KERNEL_FLAVOUR=cloud /bin/garden-latest-dev-kernel-header-package)" && \
     apt-get install -qy "${TARGET_HEADER}"; 
-
-# Install kernel headers for all supported arch+flavour combinations
+# firecracker
 RUN TARGET_HEADER="$(KERNEL_ARCH=$TARGET_ARCH KERNEL_FLAVOUR=firecracker /bin/garden-latest-dev-kernel-header-package)" && \
     apt-get install -qy "${TARGET_HEADER}"; 
-
+# plain
 RUN TARGET_HEADER="$(KERNEL_ARCH=$TARGET_ARCH /bin/garden-latest-dev-kernel-header-package)" && \
     apt-get install -qy "${TARGET_HEADER}"; 
