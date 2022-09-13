@@ -19,13 +19,15 @@ deb http://snapshot.debian.org/archive/debian-security/${VERSION_DATE}T000000Z b
 deb http://snapshot.debian.org/archive/debian/${VERSION_DATE}T000000Z bookworm-updates main
 EOF
 
-
 ${GARDENLINUX_BUILD_CRE} build \
     --build-arg VERSION_DATE=${VERSION_DATE} \
     --build-arg TARGET_ARCH="amd64" \
     -t gardenlinux/packagebuild:${VERSION} \
     -t gardenlinux/packagebuild:${VERSION_FULL} \
     -t gardenlinux/packagebuild:${VERSION_DATE} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_FULL} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_DATE} \
     -f ${thisDir}/Dockerfile.cross \
     ${thisDir} 
 
@@ -35,6 +37,9 @@ ${GARDENLINUX_BUILD_CRE} build \
     -t gardenlinux/packagebuild-go:${VERSION} \
     -t gardenlinux/packagebuild-go:${VERSION_FULL} \
     -t gardenlinux/packagebuild-go:${VERSION_DATE} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild-go:${VERSION} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild-go:${VERSION_FULL} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild-go:${VERSION_DATE} \
     -f ${thisDir}/Dockerfile.go.cross \
     ${thisDir} 
 
@@ -45,5 +50,23 @@ ${GARDENLINUX_BUILD_CRE} build \
     -t gardenlinux/packagebuild-lkm:${VERSION} \
     -t gardenlinux/packagebuild-lkm:${VERSION_FULL} \
     -t gardenlinux/packagebuild-lkm:${VERSION_DATE} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm:${VERSION} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm:${VERSION_FULL} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm:${VERSION_DATE} \
     -f ${thisDir}/Dockerfile.lkm.cross \
     ${thisDir} 
+
+
+if [ -v GHCR_UPLOAD ];then
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION}"
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_FULL}"
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_DATE}"
+
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-go:${VERSION}"
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-go:${VERSION_FULL}"
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-go:${VERSION_DATE}"
+
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm:${VERSION}"
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm:${VERSION_FULL}"
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm:${VERSION_DATE}"
+fi

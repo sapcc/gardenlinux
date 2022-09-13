@@ -8,10 +8,12 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       version: now
-  build_container:
-    uses: ./.github/workflows/build-container.yml
+  build_packagebuild_container:
+    uses: ./.github/workflows/build-packagebuild-container.yml
+  build_integration_test_container:
+    uses: ./.github/workflows/build-integration-test-container.yml
   tests:
-    needs: [ build, build_container ]
+    needs: [ build, build_integration_test_container ]
     permissions:
       id-token: write
       packages: write
