@@ -52,7 +52,7 @@ build-integration-test: build-base-test
 
 .PHONY: build-packagebuild
 build-packagebuild:
-	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION)" "$(VERSION_DATE)" "$(VERSION_NUMBER)"
+	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION)" "$(VERSION_DATE)" "$(VERSION_NUMBER)" bookworm
 
 
 .PHONY: clean

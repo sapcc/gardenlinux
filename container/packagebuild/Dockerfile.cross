@@ -4,7 +4,8 @@
 #   For a daily release, the next best snapshot is just the latest debian of that day. 
 #   Alternatively, we create our own base and map it to our daily releases.
 # Workaround until todo is solved: build only where VERSION_DATE is same as output of garden-version --date
-ARG BASE_IMAGE=debian:bookworm-slim
+ARG DEBIAN_SUITE
+ARG BASE_IMAGE=debian:${DEBIAN_SUITE}-slim
 FROM ${BASE_IMAGE}
 
 # CPU Architecture: arm64 or amd64
@@ -13,30 +14,29 @@ ARG TARGET_ARCH
 # Has the format YYYYmmdd and can be retrieved via garden-version --date
 ARG VERSION_DATE
 
-# Setup apt repository with fixed snapshot suite
-COPY sources.list /etc/apt/sources.list
-
 # Prepare for arm64 crossbuild
 RUN dpkg --add-architecture arm64
 
 RUN apt-get update -qy
 RUN apt-get upgrade -qy -o DPkg::Options::=--force-unsafe-io fakeroot
 
-# source package dependencies
+# Install pipeline and Developer Tools
 RUN apt-get install -qy --no-install-recommends \
+    vim \
+    quilt \
+    curl \
+    wget \
+    rsync \
+    git \
     ca-certificates \
     devscripts \
     pristine-lfs \
-    rsync
-
-# signed sources package dependencies
-RUN apt-get install -qy --no-install-recommends \
     dpkg-dev \
     openssl \
     jq \
     pesign
 
-# Install build deps
+# Install amd64 native build deps
 RUN apt-get install -qy --no-install-recommends \
     binutils-x86-64-linux-gnu \
     build-essential
@@ -45,3 +45,12 @@ RUN apt-get install -qy --no-install-recommends \
 RUN apt-get install -qy --no-install-recommends \
     crossbuild-essential-arm64 \
     binutils-aarch64-linux-gnu
+
+# Trust Garden Linux repo key
+RUN curl -fsSL https://raw.githubusercontent.com/gardenlinux/gardenlinux/main/gardenlinux.asc | apt-key add -
+
+# Freeze apt sources to snapshot debian repo
+# The snapshot debian repos have a rate limit. 
+# Since the snapshot of the current day is the same as the normal debian repo,
+# we can freeze to the snapshot after we installed everything from the normal repo. 
+COPY sources.list.frozen /etc/apt/sources.list
