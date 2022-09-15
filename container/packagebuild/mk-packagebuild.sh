@@ -70,7 +70,7 @@ ${GARDENLINUX_BUILD_CRE} build \
     -f ${thisDir}/Dockerfile.latest \
     ${thisDir} 
 
-# Fixed Version uses snapshot debian repos
+# Snapshot Version uses snapshot debian repos
 ${GARDENLINUX_BUILD_CRE} build \
     --build-arg BASE_IMAGE="gardenlinux/packagebuild-${TARGET_ARCH}:latest" \
     --build-arg VERSION_DATE=${VERSION_DATE} \
@@ -79,7 +79,7 @@ ${GARDENLINUX_BUILD_CRE} build \
     -t gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION_DATE} \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_FULL} \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_DATE} \
-    -f ${thisDir}/Dockerfile.fixed \
+    -f ${thisDir}/Dockerfile.snapshot \
     ${thisDir} 
 
 # Build loadable kernel module (LKM) build container based on packagebuild image
