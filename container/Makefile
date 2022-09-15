@@ -50,9 +50,13 @@ build-integration-test: build-base-test
 	@$(GARDENLINUX_BUILD_CRE) build --build-arg VERSION=$(VERSION) -t gardenlinux/integration-test:$(VERSION) integration-test
 
 
-.PHONY: build-packagebuild
-build-packagebuild:
-	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION)" "$(VERSION_DATE)" "$(VERSION_NUMBER)" bookworm
+.PHONY: build-packagebuild-arm64
+build-packagebuild-arm64:
+	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION)" "$(VERSION_DATE)" "$(VERSION_NUMBER)" bookworm arm64
+
+.PHONY: build-packagebuild-amd64
+build-packagebuild-amd64:
+	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION)" "$(VERSION_DATE)" "$(VERSION_NUMBER)" bookworm amd64
 
 
 .PHONY: clean

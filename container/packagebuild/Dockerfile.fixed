@@ -1,0 +1,14 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+# Freeze apt sources to snapshot debian repo
+# The snapshot debian repos have a rate limit. 
+# Since the snapshot of the current day is the same as the normal debian repo,
+# we can freeze to the snapshot after we installed everything from the normal repo. 
+COPY sources.list.frozen /etc/apt/sources.list
+
+# Run tests 
+RUN mkdir /tests
+COPY ./tests /tests
+RUN /tests/test_entry_point.sh
+RUN rm -rf /tests

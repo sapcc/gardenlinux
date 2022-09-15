@@ -1,8 +1,5 @@
 #!/bin/bash
 
-KERNEL_ARCH=${KERNEL_ARCH:-"amd64"}
-KERNEL_BASE=${KERNEL_BASE:-"5.15"}
-GL_APT_DIST=${GL_APT_DIST:-"dev"}
 SCRIPT=$(realpath "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 

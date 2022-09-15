@@ -1,0 +1,45 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+ARG TARGET_ARCH
+
+# Add pre-apt configs
+ADD ./conf/forbid-install-of-libdb.pref /etc/apt/preferences.d/forbid-install-of-libdb.pref
+
+RUN apt-get update -qy
+RUN apt-get upgrade -qy -o DPkg::Options::=--force-unsafe-io fakeroot
+
+# Install pipeline and Developer Tools
+RUN apt-get install -qy --no-install-recommends \
+    quilt \
+    curl \
+    wget \
+    rsync \
+    git \
+    ca-certificates \
+    devscripts \
+    pristine-lfs \
+    dpkg-dev \
+    openssl \
+    jq \
+    pesign
+
+RUN apt-get install -qy --no-install-recommends \
+    binutils \
+    build-essential
+
+# Replace libdb with empty library 
+COPY nodb/nodb.so /tmp/libdb-5.3.so
+RUN mv /tmp/libdb-5.3.so $(whereis libdb-5.3.so | cut -d':' -f2 | xargs)
+# Remove libdb leftovers
+RUN rm -rf /usr/share/doc/libdb*
+RUN rm -rf /usr/share/lintian/overrides/libdb*
+RUN rm -rf /var/lib/dpkg/info/libdb5.3*
+
+# Trust Garden Linux repo key
+RUN curl -fsSL https://raw.githubusercontent.com/gardenlinux/gardenlinux/main/gardenlinux.asc | apt-key add -
+
+# Run tests 
+RUN mkdir /tests
+COPY ./tests /tests
+RUN /tests/test_entry_point.sh
+RUN rm -rf /tests
