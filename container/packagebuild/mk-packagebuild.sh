@@ -23,14 +23,14 @@ cat << EOF > ${thisDir}/sources.list.frozen
 deb http://snapshot.debian.org/archive/debian/${VERSION_DATE}T000000Z ${DEBIAN_SUITE} main
 deb http://snapshot.debian.org/archive/debian-security/${VERSION_DATE}T000000Z ${DEBIAN_SUITE}-security main
 deb http://snapshot.debian.org/archive/debian/${VERSION_DATE}T000000Z ${DEBIAN_SUITE}-updates main
-deb http://repo.gardenlinux.io/gardenlinux ${VERSION_FULL} main
+deb [signed-by=/usr/share/keyrings/gardenlinux.gpg] http://repo.gardenlinux.io/gardenlinux ${VERSION_FULL} main
 EOF
 
 cat << EOF > ${thisDir}/sources.list.current
 deb http://deb.debian.org/debian ${DEBIAN_SUITE} main
 deb http://deb.debian.org/debian-security ${DEBIAN_SUITE}-security main
 deb http://deb.debian.org/debian ${DEBIAN_SUITE}-updates main
-deb http://repo.gardenlinux.io/gardenlinux ${VERSION_FULL} main
+deb [signed-by=/usr/share/keyrings/gardenlinux.gpg] http://repo.gardenlinux.io/gardenlinux ${VERSION_FULL} main
 EOF
 
 if [[ "$TARGET_ARCH" == "arm64" ]]; then
@@ -41,6 +41,9 @@ else
     echo "ERROR: TARGET_ARCH: '${TARGET_ARCH}' is not supported - aborting"
     exit 1
 fi
+
+# Copy Garden Linux public key
+cp ${thisDir}/../../gardenlinux.asc ${thisDir}
 
 # Create nodb as replacement for libdb
 FUN_UUID=$(uuidgen | sed "s:-::g")

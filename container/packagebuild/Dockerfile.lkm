@@ -40,8 +40,6 @@ RUN TARGET_HEADER="$(KERNEL_ARCH=${TARGET_ARCH} KERNEL_FLAVOUR=cloud /bin/garden
 # we can freeze to the snapshot after we installed everything from the normal repo. 
 COPY sources.list.frozen /etc/apt/sources.list
 
-
-
 # Run tests 
 ADD ./tests /tests
 RUN /tests/test_entry_point.sh

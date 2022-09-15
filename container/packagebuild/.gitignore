@@ -3,3 +3,5 @@ sources.list.current
 sources.list
 
 tests/check-libdb-not-installed.sh
+
+gardenlinux.asc

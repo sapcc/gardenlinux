@@ -1,3 +1,7 @@
+# Based on the packagebuild image latest
+# Replaces the repo sources with snapshot repos of the current day
+# - Garden Linux Repo just uses the suite of todays Garden Linux major.minor version
+# - Uses debian snapshot repos instead of default ones
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
 
