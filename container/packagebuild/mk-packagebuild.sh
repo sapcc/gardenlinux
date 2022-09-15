@@ -64,7 +64,7 @@ chmod +x ${thisDir}/tests/check-libdb-not-installed.sh
 ${GARDENLINUX_BUILD_CRE} build \
     --build-arg BASE_IMAGE="${BASE_IMAGE}" \
     --build-arg TARGET_ARCH="${TARGET_ARCH}" \
-    --platform linux/amd64  \
+    --platform linux/${TARGET_ARCH}  \
     -t gardenlinux/packagebuild-${TARGET_ARCH}:latest \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild:latest \
     -f ${thisDir}/Dockerfile.latest \
@@ -74,7 +74,7 @@ ${GARDENLINUX_BUILD_CRE} build \
 ${GARDENLINUX_BUILD_CRE} build \
     --build-arg BASE_IMAGE="gardenlinux/packagebuild-${TARGET_ARCH}:latest" \
     --build-arg VERSION_DATE=${VERSION_DATE} \
-    --platform linux/amd64  \
+    --platform linux/${TARGET_ARCH}  \
     -t gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION_FULL} \
     -t gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION_DATE} \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_FULL} \
@@ -86,6 +86,7 @@ ${GARDENLINUX_BUILD_CRE} build \
 ${GARDENLINUX_BUILD_CRE} build \
     --build-arg BASE_IMAGE="gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION_DATE}" \
     --build-arg VERSION_DATE=${VERSION_DATE} \
+    --platform linux/${TARGET_ARCH}  \
     --build-arg TARGET_ARCH="${TARGET_ARCH}" \
     --build-arg DEBIAN_SUITE="${DEBIAN_SUITE}" \
     -t gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION} \
