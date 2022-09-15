@@ -1,20 +1,18 @@
 #!/bin/bash
 
-set -eo pipefail
+set -Eeuo pipefail
 
 thisDir="$(dirname "$(readlink -f "$BASH_SOURCE")")"
 
 GARDENLINUX_BUILD_CRE=${1}
-VERSION=${2}
-VERSION_DATE=${3}
-VERSION_FULL=${4}
-DEBIAN_SUITE=${5}
-TARGET_ARCH=${6}
+VERSION_DATE=${2}
+VERSION_FULL=${3}
+DEBIAN_SUITE=${4}
+TARGET_ARCH=${5}
 
-USAGE="Usage: $0 <gardenlinux-build-cre> <version> <version-date> <major.minor> <debian suite> <target arch> - Aborting"
+USAGE="Usage: $0 <gardenlinux-build-cre> <version-date> <major.minor> <debian suite> <target arch>"
 
 [ -z "$GARDENLINUX_BUILD_CRE" ] && echo "$USAGE" && exit 1
-[ -z "$VERSION" ] && echo "$USAGE" && exit 1
 [ -z "$VERSION_DATE" ] && echo "$USAGE" && exit 1
 [ -z "$DEBIAN_SUITE" ] && echo "$USAGE" && exit 1
 [ -z "$TARGET_ARCH" ] && echo "$USAGE" && exit 1
@@ -56,9 +54,9 @@ popd # nodb
 
 # nodb.so replaces libdb-5.3.so. If the function FUN_UUID is listed in the symbols,
 # then we can be sure that our library is in place.
-rm -f ${thisDir}/tests/check-libdb-not-installed.sh
-cat ${thisDir}/tests/check-libdb-not-installed.template.sh| sed "s#__UUID__#${FUN_UUID}#" | tee ${thisDir}/tests/check-libdb-not-installed.sh
-chmod +x ${thisDir}/tests/check-libdb-not-installed.sh
+rm -f ${thisDir}/tests/check-libdb-not-installed.real.sh
+cat ${thisDir}/tests/check-libdb-not-installed.template.sh| sed "s#__UUID__#${FUN_UUID}#" | tee ${thisDir}/tests/check-libdb-not-installed.real.sh
+chmod +x ${thisDir}/tests/check-libdb-not-installed.real.sh
 
 # Latest Version uses latest debian repo (non snapshot)
 ${GARDENLINUX_BUILD_CRE} build \
@@ -89,24 +87,28 @@ ${GARDENLINUX_BUILD_CRE} build \
     --platform linux/${TARGET_ARCH}  \
     --build-arg TARGET_ARCH="${TARGET_ARCH}" \
     --build-arg DEBIAN_SUITE="${DEBIAN_SUITE}" \
-    -t gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION} \
     -t gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_FULL} \
-    -t gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_DATE} \
-    -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION} \
+    -t gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_FULL} \
+    -t gardenlinux/packagebuild-lkm-${TARGET_ARCH}:today \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_FULL} \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_DATE} \
+    -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:today \
     -f ${thisDir}/Dockerfile.lkm \
     ${thisDir} 
 
 
-# Uploading the images in this script allows to easily upload them also manually if required. 
+# Uploading the images in this script (instead of github actions) allows to easily upload them also manually if required. 
 # Requirements: GHCR_UPLOAD variable is set, and user is logged in to ghcr
 if [ -v GHCR_UPLOAD ];then
-    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION}"
+    # push the latest version
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-${TARGET_ARCH}:latest"
+    
+    # push the snapshot version (two aliases)
     ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION_FULL}"
     ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION_DATE}"
 
-    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION}"
+    # push the lkm version (three aliases)
+    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:today"
     ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_FULL}"
     ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_DATE}"
 fi

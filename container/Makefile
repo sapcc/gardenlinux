@@ -52,15 +52,22 @@ build-integration-test: build-base-test
 
 .PHONY: build-packagebuild-arm64
 build-packagebuild-arm64:
-	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION)" "$(VERSION_DATE)" "$(VERSION_NUMBER)" bookworm arm64
+	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION_DATE)" "$(VERSION_NUMBER)" bookworm arm64
 
 .PHONY: build-packagebuild-amd64
 build-packagebuild-amd64:
-	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION)" "$(VERSION_DATE)" "$(VERSION_NUMBER)" bookworm amd64
+	packagebuild/mk-packagebuild.sh "$(GARDENLINUX_BUILD_CRE)" "$(VERSION_DATE)" "$(VERSION_NUMBER)" bookworm amd64
 
+clean-packagebuild:
+	rm -f packagebuild/sources.list*
+	rm -f packagebuild/gardenlinux.asc
+	rm -f packagebuild/tests/*.real.sh
+	rm -f packagebuild/nodb/nodb.c
+	rm -f packagebuild/nodb/*.o
+	rm -f packagebuild/nodb/*.so
 
 .PHONY: clean
-clean:
+clean: clean-packagebuild
 	rm -rf integration-test/_pipfiles
 	-@[ -n "$$($(GARDENLINUX_BUILD_CRE) image ls gardenlinux/integration-test --format "{{.ID}}")" ] && $(GARDENLINUX_BUILD_CRE) image rm --force $$($(GARDENLINUX_BUILD_CRE) image ls gardenlinux/integration-test --format "{{.Repository}}:{{.Tag}}"); true
 	-@[ -n "$$($(GARDENLINUX_BUILD_CRE) image ls gardenlinux/build-image --format "{{.ID}}")" ] && $(GARDENLINUX_BUILD_CRE) image rm --force $$($(GARDENLINUX_BUILD_CRE) image ls gardenlinux/build-image --format "{{.Repository}}:{{.Tag}}"); true

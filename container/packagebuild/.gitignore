@@ -2,6 +2,6 @@ sources.list.frozen
 sources.list.current
 sources.list
 
-tests/check-libdb-not-installed.sh
+tests/*.real.sh
 
 gardenlinux.asc

@@ -2,4 +2,4 @@
 
 set -Eeuo pipefail
 
-/tests/check-libdb-not-installed.sh
+/tests/check-libdb-not-installed.real.sh
