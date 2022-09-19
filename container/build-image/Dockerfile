@@ -31,16 +31,22 @@ RUN apt-get update \
 		libengine-pkcs11-openssl
 
 RUN arch="$(dpkg --print-architecture)" && \
+    ls -al /lib/x86_64-linux-gnu/libexpat.so.1 && \
 	wget "https://gardenlinux-aws-kms-pkcs11.s3.eu-central-1.amazonaws.com/aws-sdk-cpp_$arch.deb" "https://gardenlinux-aws-kms-pkcs11.s3.eu-central-1.amazonaws.com/aws-kms-pkcs11_$arch.deb" && \
-	apt-get install -y --no-install-recommends "./aws-sdk-cpp_$arch.deb" "./aws-kms-pkcs11_$arch.deb"
+	apt-get install -y --no-install-recommends "./aws-sdk-cpp_$arch.deb" "./aws-kms-pkcs11_$arch.deb" && \
+	ls -al /lib/x86_64-linux-gnu/libexpat.so.1
 
 RUN echo "deb https://deb.debian.org/debian unstable main" >> /etc/apt/sources.list \
 	&& echo 'APT::Default-Release "testing";' > /etc/apt/apt.conf.d/default-testing \
+	&& ls -al /lib/x86_64-linux-gnu/libexpat.so.1 \
 	&& apt-get update \
-	&& apt-get install -t unstable -y --no-install-recommends binutils-x86-64-linux-gnu binutils-aarch64-linux-gnu
+	&& apt-get install -t unstable -y --no-install-recommends binutils-x86-64-linux-gnu binutils-aarch64-linux-gnu \
+	&& ls -al /lib/x86_64-linux-gnu/libexpat.so.1
 
-RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /var/lib/apt/lists/* && \
+	ls -al /lib/x86_64-linux-gnu/libexpat.so.1
 
 ENV	PATH=${PATH}:/opt/gardenlinux/bin
-RUN	echo "progress=bar:force:noscroll\nverbose=off" >> /etc/wgetrc
+RUN	echo "progress=bar:force:noscroll\nverbose=off" >> /etc/wgetrc && \
+	ls -al /lib/x86_64-linux-gnu/libexpat.so.1
 WORKDIR	/tmp
