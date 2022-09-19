@@ -28,25 +28,30 @@ RUN apt-get update \
 		qemu-system-arm \
 		qemu-system-x86 \
 		openssl \
-		libengine-pkcs11-openssl
+		libengine-pkcs11-openssl \
+	&& /usr/bin/python3 --version
 
 RUN arch="$(dpkg --print-architecture)" && \
     ls -al /lib/x86_64-linux-gnu/libexpat.so.1 && \
 	wget "https://gardenlinux-aws-kms-pkcs11.s3.eu-central-1.amazonaws.com/aws-sdk-cpp_$arch.deb" "https://gardenlinux-aws-kms-pkcs11.s3.eu-central-1.amazonaws.com/aws-kms-pkcs11_$arch.deb" && \
 	apt-get install -y --no-install-recommends "./aws-sdk-cpp_$arch.deb" "./aws-kms-pkcs11_$arch.deb" && \
-	ls -al /lib/x86_64-linux-gnu/libexpat.so.1
+	ls -al /lib/x86_64-linux-gnu/libexpat.so.1 && \
+	/usr/bin/python3 --version
 
 RUN echo "deb https://deb.debian.org/debian unstable main" >> /etc/apt/sources.list \
 	&& echo 'APT::Default-Release "testing";' > /etc/apt/apt.conf.d/default-testing \
 	&& ls -al /lib/x86_64-linux-gnu/libexpat.so.1 \
 	&& apt-get update \
 	&& apt-get install -t unstable -y --no-install-recommends binutils-x86-64-linux-gnu binutils-aarch64-linux-gnu \
-	&& ls -al /lib/x86_64-linux-gnu/libexpat.so.1
+	&& ls -al /lib/x86_64-linux-gnu/libexpat.so.1 \
+	&& /usr/bin/python3 --version
 
 RUN rm -rf /var/lib/apt/lists/* && \
-	ls -al /lib/x86_64-linux-gnu/libexpat.so.1
+	ls -al /lib/x86_64-linux-gnu/libexpat.so.1 \
+	&& /usr/bin/python3 --version
 
 ENV	PATH=${PATH}:/opt/gardenlinux/bin
 RUN	echo "progress=bar:force:noscroll\nverbose=off" >> /etc/wgetrc && \
-	ls -al /lib/x86_64-linux-gnu/libexpat.so.1
+	ls -al /lib/x86_64-linux-gnu/libexpat.so.1 && \
+	/usr/bin/python3 --version
 WORKDIR	/tmp
