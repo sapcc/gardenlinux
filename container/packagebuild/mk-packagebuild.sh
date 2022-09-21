@@ -14,6 +14,7 @@ USAGE="Usage: $0 <gardenlinux-build-cre> <version-date> <major.minor> <debian su
 
 [ -z "$GARDENLINUX_BUILD_CRE" ] && echo "$USAGE" && exit 1
 [ -z "$VERSION_DATE" ] && echo "$USAGE" && exit 1
+[ -z "$VERSION_FULL" ] && echo "$USAGE" && exit 1
 [ -z "$DEBIAN_SUITE" ] && echo "$USAGE" && exit 1
 [ -z "$TARGET_ARCH" ] && echo "$USAGE" && exit 1
 
@@ -65,6 +66,7 @@ ${GARDENLINUX_BUILD_CRE} build \
     --platform linux/${TARGET_ARCH}  \
     -t gardenlinux/packagebuild-${TARGET_ARCH}:latest \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild:latest \
+    -t docker.io/vincinator/packagebuild-${TARGET_ARCH}:latest \
     -f ${thisDir}/Dockerfile.latest \
     ${thisDir} 
 
@@ -77,6 +79,8 @@ ${GARDENLINUX_BUILD_CRE} build \
     -t gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION_DATE} \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_FULL} \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild:${VERSION_DATE} \
+    -t docker.io/vincinator/packagebuild-${TARGET_ARCH}:${VERSION_DATE} \
+    -t docker.io/vincinator/packagebuild-${TARGET_ARCH}:${VERSION_FULL} \
     -f ${thisDir}/Dockerfile.snapshot \
     ${thisDir} 
 
@@ -86,29 +90,12 @@ ${GARDENLINUX_BUILD_CRE} build \
     --build-arg VERSION_DATE=${VERSION_DATE} \
     --platform linux/${TARGET_ARCH}  \
     --build-arg TARGET_ARCH="${TARGET_ARCH}" \
-    --build-arg DEBIAN_SUITE="${DEBIAN_SUITE}" \
     -t gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_FULL} \
     -t gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_FULL} \
     -t gardenlinux/packagebuild-lkm-${TARGET_ARCH}:today \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_FULL} \
     -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_DATE} \
-    -t ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:today \
     -f ${thisDir}/Dockerfile.lkm \
     ${thisDir} 
 
-
-# Uploading the images in this script (instead of github actions) allows to easily upload them also manually if required. 
-# Requirements: GHCR_UPLOAD variable is set, and user is logged in to ghcr
-if [ -v GHCR_UPLOAD ];then
-    # push the latest version
-    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-${TARGET_ARCH}:latest"
-    
-    # push the snapshot version (two aliases)
-    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION_FULL}"
-    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-${TARGET_ARCH}:${VERSION_DATE}"
-
-    # push the lkm version (three aliases)
-    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:today"
-    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_FULL}"
-    ${GARDENLINUX_BUILD_CRE} push "ghcr.io/gardenlinux/gardenlinux/packagebuild-lkm-${TARGET_ARCH}:${VERSION_DATE}"
-fi
+DOCKERHUB_UPLOAD="docker.io/vincinator" ${thisDir}/mk-upload-images.sh  "${GARDENLINUX_BUILD_CRE}" "${VERSION_DATE}" "${VERSION_FULL}" "${TARGET_ARCH}"

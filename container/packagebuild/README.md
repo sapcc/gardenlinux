@@ -10,13 +10,13 @@ this packagebuild container assures independency to deliver the promise of repea
 
 ## gardenlinux/packagebuild
 
-This container images comes in two variants. The difference between those variants is only the `/etc/apt/sources.list`. 
+This container image comes in two variants. The difference between those variants is only the `/etc/apt/sources.list`. 
 The debian snapshot repositories have a rate limit, so the default of building nightly is to use build container with 
 regular debian repos that do not have the rate limit.
 
 | Container Tag |  Description  | Dockerfile |
 | ------------- |---|---|
-| `latest`          | Uses regular debian repos, and `today` of garden linux repo. Used for latest package builds. | [Dockerfile.latest](Dockerfile.latest) | 
+| `latest`          | Uses regular debian repos, and `today` of garden linux repo. Used for nightly package builds. | [Dockerfile.latest](Dockerfile.latest) | 
 | `major.minor`   | Same as latest, but uses snapshot apt repos instead. Used for package builds of previous still supported Garden Linux Versions.  | [Dockerfile.snapshot](Dockerfile.snapshot) | 
 | date `YYYYmmdd` | Same as major.minor  | [Dockerfile.snapshot](Dockerfile.snapshot) 
 
