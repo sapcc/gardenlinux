@@ -873,15 +873,20 @@ def _garden_feat(
     cmd: str,
 ) -> str:
     all_mods = modifiers + (platform,)
-    completed = subprocess.run(
-        args=[
-            os.path.abspath(os.path.join(paths.repo_root, 'bin', 'garden-feat')),
-            '--featureDir', os.path.abspath(os.path.join(paths.repo_root, 'features')),
-            '--features', ','.join(all_mods),
-            cmd,
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
+    try:
+        completed = subprocess.run(
+            args=[
+                os.path.abspath(os.path.join(paths.repo_root, 'bin', 'garden-feat')),
+                '--featureDir', os.path.abspath(os.path.join(paths.repo_root, 'features')),
+                '--features', ','.join(all_mods),
+                cmd,
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print(e.stdout)
+        print(e.stderr)
+        raise
     return completed.stdout.strip()
