@@ -23,12 +23,16 @@ def promote_single_step(
     version: str,
     build_targets: str,
 ):
+
+    committish = 'eb4ba590533ba9c68f49671107beb2c229e2ca36'
+    gardenlinux_epoch = '909'
+    version = '909.0'
     cicd_cfg = glci.util.cicd_cfg(cfg_name=cicd_cfg_name)
     build_target_set = glci.model.BuildTarget.set_from_str(build_targets)
 
-    if glci.model.BuildTarget.PUBLISH not in build_target_set:
-        logger.info(f'build target {glci.model.BuildTarget.PUBLISH=} not specified - exiting now')
-        sys.exit(0)
+    # if glci.model.BuildTarget.PUBLISH not in build_target_set:
+    #     logger.info(f'build target {glci.model.BuildTarget.PUBLISH=} not specified - exiting now')
+    #     sys.exit(0)
 
     find_release = glci.util.preconfigured(
         func=glci.util.find_release,
@@ -56,6 +60,10 @@ def promote_single_step(
 
     if not release_manifest:
         raise ValueError('no release-manifest found')
+    else:
+        print(release_manifest)
+
+    exit(0)
 
     if release_manifest.published_image_metadata is not None:
         # XXX should actually check for completeness - assume for now there is
