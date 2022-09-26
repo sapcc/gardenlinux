@@ -872,7 +872,10 @@ def _garden_feat(
     modifiers: typing.Tuple[str, ...],
     cmd: str,
 ) -> str:
-    all_mods = modifiers + (platform,)
+    print(modifiers)
+    print(platform)
+    all_mods = set(modifiers)
+    all_mods.add(platform)
     try:
         completed = subprocess.run(
             args=[
