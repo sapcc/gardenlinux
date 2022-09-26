@@ -303,6 +303,8 @@ def find_release(
     normalised = glci.model.normalised_release_identifier
     release_manifest_key = release_identifier.canonical_release_manifest_key()
 
+    print(release_manifest_key)
+
     manifest = release_manifest(
         s3_client=s3_client,
         bucket_name=bucket_name,
@@ -310,8 +312,14 @@ def find_release(
         absent_ok=True,
     )
 
+    print(manifest)
+
     if not manifest:
         return None
+
+    print(normalised(manifest.release_identifier()))
+    print("/\\")
+    print(normalised(release_identifier))
 
     if (found_ri := normalised(manifest.release_identifier())) \
         == (searched_ri := normalised(release_identifier)):
