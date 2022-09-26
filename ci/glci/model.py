@@ -456,7 +456,7 @@ def normalised_release_identifier(release_identifier: ReleaseIdentifier):
         platform=release_identifier.platform,
         modifiers=release_identifier.modifiers,
     )
-    modifiers = ','.join(features)
+    modifiers = ','.join(f.name for f in features)
 
     return dataclasses.replace(release_identifier, modifiers=modifiers)
 
@@ -478,7 +478,7 @@ def canonical_features(platform: Platform, modifiers) -> typing.Tuple[FeatureDes
     )
 
 
-def canonical_name(platform: Platform, modifiers) -> str:
+def canonical_name(platform: Platform, modifiers: Modifier) -> str:
     '''Calculates the canonical name of a gardenlinux flavour.
 
     The canonical name consists of the minimal sorted set of features in the given flavour, as
