@@ -508,6 +508,7 @@ def virtual_image_artifact_for_platform(platform: glci.model.Platform) -> str:
         'oci': '.tar.xz',
         'openstack': '.vmdk',
         'vmware': '.ova',
+        'ccloud': '.ova',
     }
 
     if not platform in platform_to_artifact_mapping:

@@ -80,6 +80,7 @@ Overview of all possible image output filetypes regarding the defined target hyp
 | KVM | `.raw` |
 | OpenStack | `.vmdk` |
 | VMWare | `.ova` |
+| CCloud | `.ova` |
 
 
 

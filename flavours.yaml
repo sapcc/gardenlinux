@@ -25,6 +25,7 @@ targets:
       - vhost
   - name: openstack
   - name: vmware
+  - name: ccloud
 modifiers:
   - _dev
   - gardener,_prod
