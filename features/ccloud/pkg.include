@@ -1,2 +1,9 @@
 #packages to include
 https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-ad_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-common_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-ipa_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-krb5_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-ldap_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-proxy_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/python3-sss_2.8.1-1_${arch}.deb
