@@ -1,2 +1,2 @@
 #packages to include
-sssd
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd_2.8.1-1_${arch}.deb
