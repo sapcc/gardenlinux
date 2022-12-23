@@ -7,3 +7,8 @@ https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sss
 https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-ldap_2.8.1-1_${arch}.deb
 https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-proxy_2.8.1-1_${arch}.deb
 https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/python3-sss_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/libsss-idmap0_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-ad-common_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/sssd-krb5-common_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/libnss-sss_2.8.1-1_${arch}.deb
+https://snapshot.debian.org/archive/debian/20221221T210101Z/pool/main/s/sssd/libpam-sss_2.8.1-1_${arch}.deb
