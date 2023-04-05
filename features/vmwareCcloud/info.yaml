@@ -1,0 +1,16 @@
+description: "VMware feature with CCloud changes"
+type: platform
+features:
+  include: 
+    - cloud
+    - _ignite
+    - sssd
+  exclude:
+    - firewall
+disk:
+  boot: 
+    - mbr
+convert:
+  format: 
+    - type: ova
+      template: gardenlinux.ovf.template
