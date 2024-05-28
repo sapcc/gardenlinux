@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+env
+
 mkdir -p /etc/apt/sources.list.d/
 # Tried it with "pkg.include" and placing this under "file.include", but that didn't work
 cat >/etc/apt/sources.list.d/debian.list <<-EOT
