@@ -1,4 +1,5 @@
 description: "ignition is installed on the system"
 type: element
 features:
-  - _ignite
+  include:
+    - _ignite
