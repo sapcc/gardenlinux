@@ -1,5 +1,0 @@
-description: "ignition is installed on the system"
-type: element
-features:
-  include:
-    - _ignite
