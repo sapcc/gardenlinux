@@ -1,0 +1,18 @@
+[Unit]
+Description=Directory (/home)
+Documentation=man:file-hierarchy(7)
+ConditionPathIsSymbolicLink=!/home
+DefaultDependencies=no
+Conflicts=umount.target
+Before=local-fs.target umount.target
+After=-.mount
+After=blockdev@dev-disk-by\x2dlabel-persistent.target
+
+[Mount]
+What=/dev/disk/by-label/persistent
+Where=/home
+Type=btrfs
+Options=subvol=/home
+
+[Install]
+WantedBy=local-fs.target

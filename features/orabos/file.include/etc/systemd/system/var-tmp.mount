@@ -1,0 +1,18 @@
+[Unit]
+Description=Directory (/var/tmp)
+Documentation=man:file-hierarchy(7)
+ConditionPathIsSymbolicLink=!/var/tmp
+DefaultDependencies=no
+Conflicts=umount.target
+Before=local-fs.target umount.target
+After=var.mount
+After=blockdev@dev-disk-by\x2dlabel-persistent.target
+
+[Mount]
+What=/dev/disk/by-label/persistent
+Where=/var/tmp
+Type=btrfs
+Options=subvol=/var/tmp
+
+[Install]
+WantedBy=local-fs.target
